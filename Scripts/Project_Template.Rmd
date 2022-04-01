@@ -6,7 +6,7 @@ output:
     number_sections: yes
 geometry: margin=2.54cm
 title: "Impacts of Dam Removal on the Neuse River"
-subtitle: "Web address for GitHub repository"
+subtitle: "https://github.com/lydiecos/Neuse-Dam-Removal"
 author: "Lydie Costes"
 fontsize: 12pt
 mainfont: Times New Roman
@@ -19,10 +19,30 @@ mainfont: Times New Roman
 # Set your working directory
 
 # Load your packages
+library(tidyverse)
+library(lubridate)
+library(dataRetrieval)
 
 # Set your ggplot theme
+theme_set(theme_bw())
 
 # Load your datasets
+# Download discharge data
+NeuseFlow <- readNWISdv(siteNumbers = "02089500",
+                    parameterCd = "00060",
+                     startDate = "",
+                     endDate = "")
+
+# Download water quality data
+NeuseWQ  <- readWQPqw(siteNumbers = "USGS-02089500",
+                      parameterCd = c("00915", # calcium, filtered mg/L
+                                      "00925", # magnesium, filtered mg/L
+                                      "00930", # sodium,filtered mg/L
+                                      "90095", # Specific conductance, uS/cm
+                                      "31625", # Fecal coliform, CFU/100 mL
+                                      "31673"), # Fecal streptocci, CFU/100 mL
+                      startDate = "",
+                      endDate = )
 
 ```
 
