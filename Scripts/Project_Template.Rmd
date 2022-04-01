@@ -16,17 +16,18 @@ mainfont: Times New Roman
 \newpage
 
 ```{r setup, include=FALSE}
-# Set your working directory
+# Get working directory
+getwd()
 
-# Load your packages
+# Load packages
 library(tidyverse)
 library(lubridate)
 library(dataRetrieval)
 
-# Set your ggplot theme
+# Set ggplot theme
 theme_set(theme_bw())
 
-# Load your datasets
+# Load datasets
 # Download discharge data
 NeuseFlow <- readNWISdv(siteNumbers = "02089500",
                     parameterCd = "00060",
@@ -55,7 +56,54 @@ NeuseWQ  <- readWQPqw(siteNumbers = "USGS-02089500",
 
 # Dataset Information
 
+```{r wrangling}
+# Change column names
+names(NeuseFlow)[4:5] <- c("Discharge", "Approval.Code")
+# Check Flow data formats
+str(NeuseFlow)
+# Check Flow data summary
+summary(NeuseFlow)
+# View flow over time
+ggplot(NeuseFlow, aes(x = Date, y = Discharge)) +
+  geom_line() 
 
+# Convert WQ to wider dataframe with characteristics of interest
+NeuseWQ_processed <- NeuseWQ %>%
+  select(MonitoringLocationIdentifier, ActivityStartDate, HydrologicCondition, 
+         CharacteristicName, ResultMeasureValue) %>%
+  mutate(Variable = case_when(CharacteristicName == "Fecal Coliform" ~ "FecalColiform_cfu.100mL", 
+                              CharacteristicName == "Fecal Streptococcus Group Bacteria" ~ "FecalStrep_cfu.100mL",
+                              CharacteristicName == "Specific conductance" ~ "SpC_uS.cm",
+                              CharacteristicName == "Calcium" ~ "Calcium_mg.L",
+                              CharacteristicName == "Magnesium" ~ "Magnesium_mg.L",
+                              CharacteristicName == "Sodium" ~ "Sodium_mg.L")) %>%
+  select(-CharacteristicName) %>%
+  pivot_wider(names_from = "Variable", values_from = "ResultMeasureValue")
+
+# Rename the date column
+names(NeuseWQ_processed)[2] <- "Date"
+# Check WQ data formats
+str(NeuseWQ_processed)
+# Check WQ data summary
+summary(NeuseWQ_processed)
+
+# The two fecal variables have too many NAs; remove them
+NeuseWQ_processed <- NeuseWQ_processed %>%
+  select(-FecalStrep_cfu.100mL, -FecalColiform_cfu.100mL)
+
+# View Conductivity over time
+ggplot(NeuseWQ_processed, aes(x = Date, y = SpC_uS.cm)) +
+  geom_point()
+# View Sodium over time
+ggplot(NeuseWQ_processed, aes(x = Date, y = Sodium_mg.L)) +
+  geom_point()
+# View Calcium over time
+ggplot(NeuseWQ_processed, aes(x = Date, y = Calcium_mg.L)) +
+  geom_point()
+# View Magnesium over time
+ggplot(NeuseWQ_processed, aes(x = Date, y = Magnesium_mg.L)) +
+  geom_point()
+```
 
 \newpage
 
@@ -69,9 +117,9 @@ NeuseWQ  <- readWQPqw(siteNumbers = "USGS-02089500",
 
 
 
-## Question 1: <insert specific question here and add additional subsections for additional questions below, if needed>
+## Question 1: Has there been an increase in release of various elements over time? Have levels steadily increased since dam removal, or did they spike and then decline, as we might hope to see?
 
-## Question 2: 
+## Question 2: Have discharge levels become more extreme since dam removal? (recognizing that separating the effects of dam removal versus climate change may be challenging)
 
 
 
