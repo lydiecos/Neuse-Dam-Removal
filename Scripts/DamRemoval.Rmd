@@ -1,0 +1,71 @@
+---
+title: "DamRemoval"
+author: "Lydie Costes"
+date: "3/22/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+getwd()
+
+library(tidyverse)
+library(lubridate)
+library(dataRetrieval)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r data download}
+# Neuse River at Kinston
+# Downstream from several dams around Goldsboro that were removed in 1998, 1999, 2006, and 2017.
+NeuseParams <- whatNWISdata(siteNumbers = "02089500")
+
+# Download discharge data
+NeuseFlow <- readNWISdv(siteNumbers = "02089500",
+                    parameterCd = "00060",
+                     startDate = "",
+                     endDate = "")
+names(NeuseFlow)[4:5] <- c("Discharge", "Approval.Code")
+ggplot(NeuseFlow, aes(x = Date, y  = Discharge)) +
+  geom_line()
+
+# Download water quality data
+NeuseWQ  <- readWQPqw(siteNumbers = "USGS-02089500",
+                      parameterCd = c("00915", # calcium, filtered mg/L
+                                      "00925", # magnesium, filtered mg/L
+                                      "00930", # sodium,filtered mg/L
+                                      "90095", # Specific conductance, uS/cm
+                                      "31625", # Fecal coliform, CFU/100 mL
+                                      "31673"), # Fecal streptocci, CFU/100 mL
+                      startDate = "",
+                      endDate = )
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r process, echo=FALSE}
+NeuseWQ_processed <- NeuseWQ %>%
+  select(MonitoringLocationIdentifier, ActivityStartDate, HydrologicCondition, 
+         CharacteristicName, ResultMeasureValue) %>%
+  mutate(Variable = case_when(CharacteristicName == "Fecal Coliform" ~ "FecalColiform_cfu.100mL", 
+                              CharacteristicName == "Fecal Streptococcus Group Bacteria" ~ "FecalStrep_cfu.100mL",
+                              CharacteristicName == "Specific conductance" ~ "SpC_uS.cm",
+                              CharacteristicName == "Calcium" ~ "Calcium_mg.L",
+                              CharacteristicName == "Magnesium" ~ "Magnesium_mg.L",
+                              CharacteristicName == "Sodium" ~ "Sodium_mg.L")) %>%
+  select(-CharacteristicName) %>%
+  pivot_wider(names_from = "Variable", values_from = "ResultMeasureValue")
+summary(NeuseWQ_processed)
+
+ggplot(NeuseWQ_processed, aes(x = ActivityStartDate, y = Calcium_mg.L)) +
+  geom_point()
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
