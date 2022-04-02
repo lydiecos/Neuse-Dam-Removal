@@ -28,6 +28,8 @@ library(dataRetrieval)
 theme_set(theme_bw())
 
 # Load datasets
+# Download list of available parameters
+NeuseParams <- whatNWISdata(siteNumbers = "02089500")
 # Download discharge data
 NeuseFlow <- readNWISdv(siteNumbers = "02089500",
                     parameterCd = "00060",
@@ -36,7 +38,9 @@ NeuseFlow <- readNWISdv(siteNumbers = "02089500",
 
 # Download water quality data
 NeuseWQ  <- readWQPqw(siteNumbers = "USGS-02089500",
-                      parameterCd = c("00915", # calcium, filtered mg/L
+                      parameterCd = c("00600", # nitrogen, unfiltered mg/L
+                                      "00665", # phosphorus, unfiltered mg/L
+                                      "00915", # calcium, filtered mg/L
                                       "00925", # magnesium, filtered mg/L
                                       "00930", # sodium,filtered mg/L
                                       "90095", # Specific conductance, uS/cm
@@ -45,10 +49,28 @@ NeuseWQ  <- readWQPqw(siteNumbers = "USGS-02089500",
                       startDate = "",
                       endDate = )
 
+# consider also adding
+# 00400: pH
+# 00665: phosphorus
 ```
 
 
 # Rationale and Research Questions
+
+Over the past century, perceptions of dams have gradually changed, as understanding of their serious ecological issues has increased and as existing dams have aged, creating safety concerns and the need for expensive repairs. Dams block the passage of fish and other aquatic species, seriously disrupting life cycles for some species. They also impact water quality and alter natural flow. Increasingly, dam removal is pursued as an option to deal with aging dams and restore rivers. 
+
+In this study, we seek to understand how dam removal has impacted the physical and chemical processes of one river, the Neuse River in North Carolina. Between 1998 and 2017, six dams were removed from the Neuse River (see map below). The gage we are using for these analyses is downstream from Goldsboro and should thus reflect some of the changes in flow and water quality that occurred after these removals.  
+
+![map of Neuse River](../Figures-and-Maps/north-carolina-first-dam-removal-part-i.png)
+
+We are interested in both changes in physical process and changes in chemical processes, which can vary widely according to the specific river, its history, and the dam removal process (Foley et al 2017). Dams allow for moderation of flow, often eliminating extreme flooding events. Therefore, dam removal in combination with increasing extreme weather events due to climate change could lead to more extreme and more frequent high flow events. On the other hand, natural river systems and riparian areas can be more resilient to flood events than artificially constructed channels, so true restoration could help mitigate high flow events to some extent. 
+
+Changes in water quality are also an area of interest. Large amounts of sediment and minerals built up behind the dam may release quickly after removal, especially if the removal was sudden rather than gradual (Foley et al 2017). Over longer time, water quality is expected to improve because of restored ecological processes.
+
+## Question 1: Have discharge levels become more extreme since dam removal?
+
+## Question 2: Has there been an increase in release of sediment and nutrients over time? 
+#+ Have levels steadily increased since dam removal, or did they spike and then stabilize?
 
 
 
@@ -59,13 +81,12 @@ NeuseWQ  <- readWQPqw(siteNumbers = "USGS-02089500",
 ```{r wrangling}
 # Change column names
 names(NeuseFlow)[4:5] <- c("Discharge", "Approval.Code")
+# Check dimensions
+dim(NeuseFlow)
 # Check Flow data formats
 str(NeuseFlow)
 # Check Flow data summary
 summary(NeuseFlow)
-# View flow over time
-ggplot(NeuseFlow, aes(x = Date, y = Discharge)) +
-  geom_line() 
 
 # Convert WQ to wider dataframe with characteristics of interest
 NeuseWQ_processed <- NeuseWQ %>%
@@ -76,14 +97,14 @@ NeuseWQ_processed <- NeuseWQ %>%
                               CharacteristicName == "Specific conductance" ~ "SpC_uS.cm",
                               CharacteristicName == "Calcium" ~ "Calcium_mg.L",
                               CharacteristicName == "Magnesium" ~ "Magnesium_mg.L",
-                              CharacteristicName == "Sodium" ~ "Sodium_mg.L")) %>%
+                              CharacteristicName == "Sodium" ~ "Sodium_mg.L",
+                              CharacteristicName == "Nitrogen, mixed forms (NH3), (NH4), organic, (NO2) and (NO3)" ~ "Nitrogen_mg.L",
+                              CharacteristicName == "Phosphorus" ~ "Phosphorus_mg.L")) %>%
   select(-CharacteristicName) %>%
   pivot_wider(names_from = "Variable", values_from = "ResultMeasureValue")
 
 # Rename the date column
 names(NeuseWQ_processed)[2] <- "Date"
-# Check WQ data formats
-str(NeuseWQ_processed)
 # Check WQ data summary
 summary(NeuseWQ_processed)
 
@@ -91,9 +112,22 @@ summary(NeuseWQ_processed)
 NeuseWQ_processed <- NeuseWQ_processed %>%
   select(-FecalStrep_cfu.100mL, -FecalColiform_cfu.100mL)
 
-# View Conductivity over time
-ggplot(NeuseWQ_processed, aes(x = Date, y = SpC_uS.cm)) +
-  geom_point()
+# Check dimensions
+dim(NeuseWQ_processed)
+# Check WQ data formats
+str(NeuseWQ_processed)
+
+```
+
+\newpage
+
+# Exploratory Analysis 
+
+```{r}
+# View flow over time
+ggplot(NeuseFlow, aes(x = Date, y = Discharge)) +
+  geom_line() 
+
 # View Sodium over time
 ggplot(NeuseWQ_processed, aes(x = Date, y = Sodium_mg.L)) +
   geom_point()
@@ -103,24 +137,22 @@ ggplot(NeuseWQ_processed, aes(x = Date, y = Calcium_mg.L)) +
 # View Magnesium over time
 ggplot(NeuseWQ_processed, aes(x = Date, y = Magnesium_mg.L)) +
   geom_point()
+# View Nitrogen over time
+ggplot(NeuseWQ_processed, aes(x = Date, y = Nitrogen_mg.L)) +
+  geom_point()
+# View Phosphorus over time
+ggplot(NeuseWQ_processed, aes(x = Date, y = Phosphorus_mg.L)) +
+  geom_point()
 ```
-
-\newpage
-
-# Exploratory Analysis 
-
 
 
 \newpage
 
 # Analysis
 
+```{r}
 
-
-## Question 1: Has there been an increase in release of various elements over time? Have levels steadily increased since dam removal, or did they spike and then decline, as we might hope to see?
-
-## Question 2: Have discharge levels become more extreme since dam removal? (recognizing that separating the effects of dam removal versus climate change may be challenging)
-
+```
 
 
 
@@ -132,4 +164,6 @@ ggplot(NeuseWQ_processed, aes(x = Date, y = Magnesium_mg.L)) +
 \newpage
 
 # References
-<add references here if relevant, otherwise delete this section> 
+
+* Foley, M. M., J. R. Bellmore, J. E. O'Connor, J. J. Duda, A. E. East, G. E. Grant, C. W. Anderson, J. A. Bountry, M. J. Collins, P. J. Connolly, L. S. Craig, J. E. Evans, S. L. Greene,F. J. Magilligan, C. S. Magirl, J. J. Major, G. R. Pess,T. J. Randle, P. B. Shafroth, C. E. Torgersen, D. Tullos, A. C. Wilcox. 2017. Dam removal: Listening in. Water Resources Research. 53(7):5229-5246. https://doi-org.proxy.lib.duke.edu/10.1002/2017WR020457
+
