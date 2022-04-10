@@ -27,17 +27,36 @@ library(dataRetrieval)
 # Set ggplot theme
 theme_set(theme_bw())
 
+# Possible sites:
+# 01631000
+# info: https://dwr.virginia.gov/fishing/fish-passage/#orange
+
+
 # Load datasets
 # Download list of available parameters
-NeuseParams <- whatNWISdata(siteNumbers = "02089500")
+ShenaParams <- whatNWISdata(siteNumbers = "01631000")
 # Download discharge data
-NeuseFlow <- readNWISdv(siteNumbers = "02089500",
+ShenaFlow <- readNWISdv(siteNumbers = "01631000",
                     parameterCd = "00060",
                      startDate = "",
                      endDate = "")
+# Most common parameters:
+# 00060
+# 00065
+# 00095
+# 00010
+# 80154
+# 80155
+# 00191
+# 00400
+# 00900
+# 00660
+# 00671
+# 00631
+# 00618
 
 # Download water quality data
-NeuseWQ  <- readWQPqw(siteNumbers = "USGS-02089500",
+ShenaWQ  <- readWQPqw(siteNumbers = "USGS-01631000",
                       parameterCd = c("00600", # nitrogen, unfiltered mg/L
                                       "00665", # phosphorus, unfiltered mg/L
                                       "00915", # calcium, filtered mg/L
