@@ -166,6 +166,13 @@ ggplot(ShenaWQ_processed, aes(x = Date, y = Hardness)) +
 # View Temp over time
 ggplot(ShenaWQ_processed, aes(x = Date, y = Temp_C)) +
   geom_point()
+# View Sediments over time
+ggplot(ShenaWQ_processed, aes(x = Date, y = Sediments_mg.L)) +
+  geom_point()
+
+# Remove Calcium and Magnesium because they don't have data post-2004
+ShenaWQ_processed <- ShenaWQ_processed %>%
+  select(-Calcium_mg.L, -Magnesium_mg.L)
 
 # TO DO
 # Create a month column to be able to color by month
