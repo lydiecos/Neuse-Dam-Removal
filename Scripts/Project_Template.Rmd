@@ -5,12 +5,13 @@ output:
     fig_caption: yes
     number_sections: yes
 geometry: margin=2.54cm
-title: "Impacts of Dam Removal on the Neuse River"
-subtitle: "https://github.com/lydiecos/Neuse-Dam-Removal"
+title: "Impacts of Dam Removal on the Shenandoah River"
+subtitle: "https://github.com/lydiecos/Dam-Removal"
 author: "Lydie Costes"
 fontsize: 12pt
 mainfont: Times New Roman
-
+editor_options: 
+  chunk_output_type: console
 ---
 
 \newpage
@@ -40,37 +41,33 @@ ShenaFlow <- readNWISdv(siteNumbers = "01631000",
                     parameterCd = "00060",
                      startDate = "",
                      endDate = "")
+
 # Most common parameters:
-# 00060
-# 00065
-# 00095
-# 00010
-# 80154
-# 80155
-# 00191
-# 00400
-# 00900
-# 00660
-# 00671
-# 00631
-# 00618
+# 00095 Specific conductance
+# 00010 Temperature C
+# 80154 Suspended sediments mg/L
+# 00400 pH
+# 00900 Hardness - sum of calcium and magnesium. Check time scales of each
+# 00660 Orthophosphate mg/L
+# 00631 Nitrate mg/L
+# 00945 Sulfate, mg/L
+# 00925 Magnesium, mg/L
+# 00915 Calcium, mg/L
 
 # Download water quality data
 ShenaWQ  <- readWQPqw(siteNumbers = "USGS-01631000",
-                      parameterCd = c("00600", # nitrogen, unfiltered mg/L
-                                      "00665", # phosphorus, unfiltered mg/L
+                      parameterCd = c("00631", # nitrate, mg/L
+                                      "00660", # phosphate, mg/L
                                       "00915", # calcium, filtered mg/L
                                       "00925", # magnesium, filtered mg/L
-                                      "00930", # sodium,filtered mg/L
-                                      "90095", # Specific conductance, uS/cm
-                                      "31625", # Fecal coliform, CFU/100 mL
-                                      "31673"), # Fecal streptocci, CFU/100 mL
+                                      "00400", # pH
+                                      "80154", # Suspended sediments mg/L
+                                      "00095", # Specific conductance
+                                      "00900", # Hardness 
+                                      "00010"), # Temperature C
                       startDate = "",
                       endDate = )
 
-# consider also adding
-# 00400: pH
-# 00665: phosphorus
 ```
 
 
@@ -99,37 +96,46 @@ Changes in water quality are also an area of interest. Large amounts of sediment
 
 ```{r wrangling}
 # Change column names
-names(NeuseFlow)[4:5] <- c("Discharge", "Approval.Code")
+names(ShenaFlow)[4:5] <- c("Discharge", "Approval.Code")
 # Check dimensions
-dim(NeuseFlow)
+dim(ShenaFlow)
 # Check Flow data formats
-str(NeuseFlow)
+str(ShenaFlow)
 # Check Flow data summary
-summary(NeuseFlow)
+summary(ShenaFlow)
 
 # Convert WQ to wider dataframe with characteristics of interest
-NeuseWQ_processed <- NeuseWQ %>%
+ShenaWQ_processed <- ShenaWQ %>%
   select(MonitoringLocationIdentifier, ActivityStartDate, HydrologicCondition, 
          CharacteristicName, ResultMeasureValue) %>%
-  mutate(Variable = case_when(CharacteristicName == "Fecal Coliform" ~ "FecalColiform_cfu.100mL", 
-                              CharacteristicName == "Fecal Streptococcus Group Bacteria" ~ "FecalStrep_cfu.100mL",
+  mutate(Variable = case_when(CharacteristicName == "pH" ~ "pH", 
+                              CharacteristicName == "Hardness, Ca, Mg" ~ "Hardness",
                               CharacteristicName == "Specific conductance" ~ "SpC_uS.cm",
                               CharacteristicName == "Calcium" ~ "Calcium_mg.L",
                               CharacteristicName == "Magnesium" ~ "Magnesium_mg.L",
-                              CharacteristicName == "Sodium" ~ "Sodium_mg.L",
-                              CharacteristicName == "Nitrogen, mixed forms (NH3), (NH4), organic, (NO2) and (NO3)" ~ "Nitrogen_mg.L",
-                              CharacteristicName == "Phosphorus" ~ "Phosphorus_mg.L")) %>%
+                              CharacteristicName == "Suspended Sediment Concentration (SSC)" ~ "Sediments_mg.L",
+                              CharacteristicName == "Inorganic nitrogen (nitrate and nitrite)" ~ "Nitrogen_mg.L",
+                              CharacteristicName == "Orthophosphate" ~ "Phosphate_mg.L",
+                              CharacteristicName == "Temperature, water" ~ "Temp_C")) %>%
   select(-CharacteristicName) %>%
   pivot_wider(names_from = "Variable", values_from = "ResultMeasureValue")
 
 # Rename the date column
-names(NeuseWQ_processed)[2] <- "Date"
-# Check WQ data summary
-summary(NeuseWQ_processed)
+names(ShenaWQ_processed)[2] <- "Date"
 
-# The two fecal variables have too many NAs; remove them
-NeuseWQ_processed <- NeuseWQ_processed %>%
-  select(-FecalStrep_cfu.100mL, -FecalColiform_cfu.100mL)
+# Check the dimensions
+dim(ShenaWQ_processed)
+# Check the summary
+summary(ShenaWQ_processed)
+# Summary is doing weird things. Check the head
+head(ShenaWQ_processed)
+# THIS IS A MESS! Why are all my columns lists??
+
+# Tried a couple things but they're not helping...
+#ShenaWQ_processed$Calcium_mg.L <- as.numeric(unlist(ShenaWQ_processed$Calcium_mg.L))
+ShenaWQ_processed <- ShenaWQ_processed %>%
+  na_if(., NULL)
+
 
 # Check dimensions
 dim(NeuseWQ_processed)
