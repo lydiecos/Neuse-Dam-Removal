@@ -118,7 +118,8 @@ ShenaWQ_processed <- ShenaWQ %>%
                               CharacteristicName == "Orthophosphate" ~ "Phosphate_mg.L",
                               CharacteristicName == "Temperature, water" ~ "Temp_C")) %>%
   select(-CharacteristicName) %>%
-  pivot_wider(names_from = "Variable", values_from = "ResultMeasureValue")
+  pivot_wider(names_from = "Variable", values_from = "ResultMeasureValue") %>%
+  unnest(Calcium_mg.L:Sediments_mg.L)
 
 # Rename the date column
 names(ShenaWQ_processed)[2] <- "Date"
@@ -127,20 +128,8 @@ names(ShenaWQ_processed)[2] <- "Date"
 dim(ShenaWQ_processed)
 # Check the summary
 summary(ShenaWQ_processed)
-# Summary is doing weird things. Check the head
-head(ShenaWQ_processed)
-# THIS IS A MESS! Why are all my columns lists??
-
-# Tried a couple things but they're not helping...
-#ShenaWQ_processed$Calcium_mg.L <- as.numeric(unlist(ShenaWQ_processed$Calcium_mg.L))
-ShenaWQ_processed <- ShenaWQ_processed %>%
-  na_if(., NULL)
-
-
-# Check dimensions
-dim(NeuseWQ_processed)
 # Check WQ data formats
-str(NeuseWQ_processed)
+str(ShenaWQ_processed)
 
 ```
 
@@ -150,24 +139,38 @@ str(NeuseWQ_processed)
 
 ```{r}
 # View flow over time
-ggplot(NeuseFlow, aes(x = Date, y = Discharge)) +
+ggplot(ShenaFlow, aes(x = Date, y = Discharge)) +
   geom_line() 
 
-# View Sodium over time
-ggplot(NeuseWQ_processed, aes(x = Date, y = Sodium_mg.L)) +
+# View pH over time
+ggplot(ShenaWQ_processed, aes(x = Date, y = pH)) +
   geom_point()
 # View Calcium over time
-ggplot(NeuseWQ_processed, aes(x = Date, y = Calcium_mg.L)) +
-  geom_point()
+ggplot(ShenaWQ_processed, aes(x = Date, y = Calcium_mg.L)) +
+  geom_point() # REMOVE
 # View Magnesium over time
-ggplot(NeuseWQ_processed, aes(x = Date, y = Magnesium_mg.L)) +
-  geom_point()
+ggplot(ShenaWQ_processed, aes(x = Date, y = Magnesium_mg.L)) +
+  geom_point() # REMOVE
 # View Nitrogen over time
-ggplot(NeuseWQ_processed, aes(x = Date, y = Nitrogen_mg.L)) +
+ggplot(ShenaWQ_processed, aes(x = Date, y = Nitrogen_mg.L)) +
   geom_point()
-# View Phosphorus over time
-ggplot(NeuseWQ_processed, aes(x = Date, y = Phosphorus_mg.L)) +
+# View Phosphate over time
+ggplot(ShenaWQ_processed, aes(x = Date, y = Phosphate_mg.L)) +
   geom_point()
+# View Special Conductance over time
+ggplot(ShenaWQ_processed, aes(x = Date, y = SpC_uS.cm)) +
+  geom_point()
+# View Hardness over time
+ggplot(ShenaWQ_processed, aes(x = Date, y = Hardness)) +
+  geom_point()
+# View Temp over time
+ggplot(ShenaWQ_processed, aes(x = Date, y = Temp_C)) +
+  geom_point()
+
+# TO DO
+# Create a month column to be able to color by month
+# Pick and run analyses
+
 ```
 
 
