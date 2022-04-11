@@ -6,7 +6,7 @@ output:
     number_sections: yes
 geometry: margin=2.54cm
 title: "Impacts of Dam Removal on the Shenandoah River"
-subtitle: "https://github.com/lydiecos/Dam-Removal"
+subtitle: "https://github.com/lydiecos/WDA-Dam-Removal"
 author: "Lydie Costes"
 fontsize: 12pt
 mainfont: Times New Roman
@@ -75,9 +75,10 @@ ShenaWQ  <- readWQPqw(siteNumbers = "USGS-01631000",
 
 Over the past century, perceptions of dams have gradually changed, as understanding of their serious ecological issues has increased and as existing dams have aged, creating safety concerns and the need for expensive repairs. Dams block the passage of fish and other aquatic species, seriously disrupting life cycles for some species. They also impact water quality and alter natural flow. Increasingly, dam removal is pursued as an option to deal with aging dams and restore rivers. 
 
-In this study, we seek to understand how dam removal has impacted the physical and chemical processes of one river, the Neuse River in North Carolina. Between 1998 and 2017, six dams were removed from the Neuse River (see map below). The gage we are using for these analyses is downstream from Goldsboro and should thus reflect some of the changes in flow and water quality that occurred after these removals.  
+In this study, we seek to understand how dam removal has impacted the physical and chemical processes of one river, the Neuse River in North Carolina. From 2004-2005, three dams were removed from the Southern Fork of the Shenandoah River (see map below). The gage we are using for these analyses is downstream from these dams and should thus reflect some of the changes in flow and water quality that occurred after these removals.  
 
-![map of Neuse River](../Figures-and-Maps/north-carolina-first-dam-removal-part-i.png)
+Below: The red X marks the spot of the McGaheysville Dam, which were removed along with the Knightly Dam and Rockland Dam upstream in 2004-2005. All three dams were located along the south fork of the Shenandoah River, which feeds into the Potomac.
+![map of Neuse River](../Figures-and-Maps/mcgaheysvilledam.png)
 
 We are interested in both changes in physical process and changes in chemical processes, which can vary widely according to the specific river, its history, and the dam removal process (Foley et al 2017). Dams allow for moderation of flow, often eliminating extreme flooding events. Therefore, dam removal in combination with increasing extreme weather events due to climate change could lead to more extreme and more frequent high flow events. On the other hand, natural river systems and riparian areas can be more resilient to flood events than artificially constructed channels, so true restoration could help mitigate high flow events to some extent. 
 
@@ -202,3 +203,4 @@ ShenaWQ_processed <- ShenaWQ_processed %>%
 
 * Foley, M. M., J. R. Bellmore, J. E. O'Connor, J. J. Duda, A. E. East, G. E. Grant, C. W. Anderson, J. A. Bountry, M. J. Collins, P. J. Connolly, L. S. Craig, J. E. Evans, S. L. Greene,F. J. Magilligan, C. S. Magirl, J. J. Major, G. R. Pess,T. J. Randle, P. B. Shafroth, C. E. Torgersen, D. Tullos, A. C. Wilcox. 2017. Dam removal: Listening in. Water Resources Research. 53(7):5229-5246. https://doi-org.proxy.lib.duke.edu/10.1002/2017WR020457
 
+Map source: http://www.virginiaplaces.org/watersheds/fishpassage.html
