@@ -30,6 +30,9 @@ library(mcp)
 # Set ggplot theme
 theme_set(theme_bw())
 
+# Set number format
+options(scipen=8)
+
 # Possible sites:
 # 01631000
 # info: https://dwr.virginia.gov/fishing/fish-passage/#orange
@@ -100,12 +103,39 @@ Changes in water quality are also an area of interest. Large amounts of sediment
 ```{r wrangling}
 # Change column names
 names(ShenaFlow)[4:5] <- c("Discharge", "Approval.Code")
+
+# Add month and year column
+ShenaFlow <- ShenaFlow %>%
+  mutate(Month = month(Date),
+         Year = year(Date))
+
 # Check dimensions
 dim(ShenaFlow)
 # Check Flow data formats
 str(ShenaFlow)
 # Check Flow data summary
 summary(ShenaFlow)
+
+# Create monthly summary dataset of discharge
+ShenaFlow_monthly <- ShenaFlow %>%
+  group_by(Year, Month) %>%
+  summarise(Discharge_min = min(Discharge),
+            Discharge_max = max(Discharge),
+            Discharge_mean = mean(Discharge)) %>%
+  mutate(Date = as.Date(paste(Year, Month, "1", sep = "-"), format = "%Y-%m-%d"))
+# Check dimensions and summary of dataset
+dim(ShenaFlow_monthly)
+summary(ShenaFlow_monthly)
+
+# Create yearly summary dataset of discharge
+ShenaFlow_yearly <- ShenaFlow %>%
+  group_by(Year) %>%
+  summarise(Discharge_min = min(Discharge),
+            Discharge_max = max(Discharge),
+            Discharge_mean = mean(Discharge))
+# Check dimensions and summary of dataset
+dim(ShenaFlow_yearly)
+summary(ShenaFlow_yearly)
 
 # Convert WQ to wider dataframe with characteristics of interest
 ShenaWQ_processed <- ShenaWQ %>%
@@ -115,7 +145,6 @@ ShenaWQ_processed <- ShenaWQ %>%
          Year = year(ActivityStartDate),
          Variable = case_when(CharacteristicName == "pH" ~ "pH", 
                               CharacteristicName == "Hardness, Ca, Mg" ~ "Hardness",
-                              CharacteristicName == "Specific conductance" ~ "SpC_uS.cm",
                               CharacteristicName == "Suspended Sediment Concentration (SSC)" ~ "Sediments_mg.L",
                               CharacteristicName == "Inorganic nitrogen (nitrate and nitrite)" ~ "Nitrogen_mg.L",
                               CharacteristicName == "Orthophosphate" ~ "Phosphate_mg.L",
@@ -134,7 +163,7 @@ summary(ShenaWQ_processed)
 # Check WQ data formats
 str(ShenaWQ_processed)
 
-# Create monthly summary dataset
+# Create monthly summary dataset of water quality
 ShenaWQ_monthly <- ShenaWQ_processed %>%
   group_by(Year, Month) %>%
   summarise(Sediment_min = min(Sediments_mg.L),
@@ -148,9 +177,11 @@ ShenaWQ_monthly <- ShenaWQ_processed %>%
             Nitrogen_mean = mean(Nitrogen_mg.L),
             Phosphate_min = min(Phosphate_mg.L),
             Phosphate_max = max(Phosphate_mg.L),
-            Phosphate_mean = mean(Phosphate_mg.L))
-
-str(ShenaWQ_monthly)
+            Phosphate_mean = mean(Phosphate_mg.L)) %>%
+  mutate(Date = as.Date(paste(Year, Month, "1", sep = "-"), format = "%Y-%m-%d"))
+# Check dimensions and summary of dataset
+dim(ShenaWQ_monthly)
+summary(ShenaWQ_monthly)
 
 ```
 
@@ -180,11 +211,6 @@ ggplot(ShenaWQ_processed, aes(x = Date, y = Nitrogen_mg.L)) +
 # View Phosphate over time
 # Elevated levels expected after dam removal but eventual decline
 ggplot(ShenaWQ_processed, aes(x = Date, y = Phosphate_mg.L)) +
-  geom_point(aes(color = Month)) +
-  geom_smooth(method = "lm")
-
-# View Special Conductance over time
-ggplot(ShenaWQ_processed, aes(x = Date, y = SpC_uS.cm)) +
   geom_point(aes(color = Month)) +
   geom_smooth(method = "lm")
 
@@ -219,7 +245,26 @@ ggplot(ShenaWQ_processed, aes(x = Date, y = Sediments_mg.L)) +
 
 # Analysis
 
+> Question #1: Have discharge extremes increased since the removal of the dams?
+
 ```{r  Flow.analysis}
+# View monthly min and max flow over time
+ggplot(ShenaFlow_monthly, aes(x = Date)) +
+  scale_y_log10() +
+  geom_line(aes(y = Discharge_min), color = "lightskyblue2") +
+  geom_line(aes(y = Discharge_max), color = "steelblue3") +
+  geom_vline(xintercept = as.numeric(as.Date("2015-01-01")), linetype = 4)
+# Extreme discharge does not appear to have increased. Check yearly because monthly is difficult to see.
+
+# View yearly min, max, mean flow over time
+ggplot(ShenaFlow_yearly, aes(x = Year)) +
+  scale_y_log10() +
+  geom_line(aes(y = Discharge_min), color = "lightskyblue2") +
+  geom_line(aes(y = Discharge_max), color = "steelblue") +
+  geom_line(aes(y = Discharge_mean), color = "steelblue2") +
+  geom_vline(xintercept = as.numeric(2014), linetype = 4) +
+  labs(y = "Discharge ()")
+
 # Create before and after datasets
 ShenaFlow.before <- ShenaFlow[ShenaFlow$Date < "2004-01-01",]
 ShenaFlow.after <- ShenaFlow[ShenaFlow$Date >= "2006-01-01",]
