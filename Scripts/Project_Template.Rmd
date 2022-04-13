@@ -24,6 +24,8 @@ getwd()
 library(tidyverse)
 library(lubridate)
 library(dataRetrieval)
+# install.packages("mcp")
+library(mcp)
 
 # Set ggplot theme
 theme_set(theme_bw())
@@ -107,13 +109,13 @@ summary(ShenaFlow)
 
 # Convert WQ to wider dataframe with characteristics of interest
 ShenaWQ_processed <- ShenaWQ %>%
-  select(MonitoringLocationIdentifier, ActivityStartDate, HydrologicCondition, 
+  select(MonitoringLocationIdentifier, ActivityStartDate, HydrologicCondition,
          CharacteristicName, ResultMeasureValue) %>%
-  mutate(Variable = case_when(CharacteristicName == "pH" ~ "pH", 
+  mutate(Month = month(ActivityStartDate),
+         Year = year(ActivityStartDate),
+         Variable = case_when(CharacteristicName == "pH" ~ "pH", 
                               CharacteristicName == "Hardness, Ca, Mg" ~ "Hardness",
                               CharacteristicName == "Specific conductance" ~ "SpC_uS.cm",
-                              CharacteristicName == "Calcium" ~ "Calcium_mg.L",
-                              CharacteristicName == "Magnesium" ~ "Magnesium_mg.L",
                               CharacteristicName == "Suspended Sediment Concentration (SSC)" ~ "Sediments_mg.L",
                               CharacteristicName == "Inorganic nitrogen (nitrate and nitrite)" ~ "Nitrogen_mg.L",
                               CharacteristicName == "Orthophosphate" ~ "Phosphate_mg.L",
@@ -132,6 +134,24 @@ summary(ShenaWQ_processed)
 # Check WQ data formats
 str(ShenaWQ_processed)
 
+# Create monthly summary dataset
+ShenaWQ_monthly <- ShenaWQ_processed %>%
+  group_by(Year, Month) %>%
+  summarise(Sediment_min = min(Sediments_mg.L),
+            Sediment_max = max(Sediments_mg.L),
+            Sediment_mean = mean(Sediments_mg.L),
+            Temp_min = min(Temp_C),
+            Temp_max = max(Temp_C),
+            Temp_mean = mean(Temp_C),
+            Nitrogen_min = min(Nitrogen_mg.L),
+            Nitrogen_max = max(Nitrogen_mg.L),
+            Nitrogen_mean = mean(Nitrogen_mg.L),
+            Phosphate_min = min(Phosphate_mg.L),
+            Phosphate_max = max(Phosphate_mg.L),
+            Phosphate_mean = mean(Phosphate_mg.L))
+
+str(ShenaWQ_monthly)
+
 ```
 
 \newpage
@@ -141,43 +161,56 @@ str(ShenaWQ_processed)
 ```{r}
 # View flow over time
 ggplot(ShenaFlow, aes(x = Date, y = Discharge)) +
-  geom_line() 
+  geom_line() +
+  geom_smooth(method = "lm") +
+  scale_y_log10()
 
 # View pH over time
 ggplot(ShenaWQ_processed, aes(x = Date, y = pH)) +
-  geom_point()
-# View Calcium over time
-ggplot(ShenaWQ_processed, aes(x = Date, y = Calcium_mg.L)) +
-  geom_point() # REMOVE
-# View Magnesium over time
-ggplot(ShenaWQ_processed, aes(x = Date, y = Magnesium_mg.L)) +
-  geom_point() # REMOVE
+  geom_point(aes(color = Month)) +
+  geom_smooth(method = "lm")
+
 # View Nitrogen over time
+# Elevated levels expected after dam removal but eventual decline
 ggplot(ShenaWQ_processed, aes(x = Date, y = Nitrogen_mg.L)) +
-  geom_point()
+  geom_point(aes(color = Month)) +
+  geom_smooth(method = "lm")
+# pull min, max, average
+
 # View Phosphate over time
+# Elevated levels expected after dam removal but eventual decline
 ggplot(ShenaWQ_processed, aes(x = Date, y = Phosphate_mg.L)) +
-  geom_point()
+  geom_point(aes(color = Month)) +
+  geom_smooth(method = "lm")
+
 # View Special Conductance over time
 ggplot(ShenaWQ_processed, aes(x = Date, y = SpC_uS.cm)) +
-  geom_point()
+  geom_point(aes(color = Month)) +
+  geom_smooth(method = "lm")
+
 # View Hardness over time
 ggplot(ShenaWQ_processed, aes(x = Date, y = Hardness)) +
-  geom_point()
+  geom_point(aes(color = Month)) +
+  geom_smooth(method = "lm")
+
 # View Temp over time
 ggplot(ShenaWQ_processed, aes(x = Date, y = Temp_C)) +
-  geom_point()
-# View Sediments over time
-ggplot(ShenaWQ_processed, aes(x = Date, y = Sediments_mg.L)) +
-  geom_point()
+  geom_point(aes(color = Month)) +
+  geom_smooth(method = "lm")
+# consider pulling average max min, and average per month
 
-# Remove Calcium and Magnesium because they don't have data post-2004
-ShenaWQ_processed <- ShenaWQ_processed %>%
-  select(-Calcium_mg.L, -Magnesium_mg.L)
+# View Sediments over time
+# Predict increased sediment load right after dam removal, but eventual decline
+ggplot(ShenaWQ_processed, aes(x = Date, y = Sediments_mg.L)) +
+  geom_point(aes(color = Month)) +
+  geom_smooth(method = "lm") +
+  scale_x_date(limits = c(as.Date("1970-01-01"), 
+                          as.Date("2022-02-17")))
 
 # TO DO
-# Create a month column to be able to color by month
-# Pick and run analyses
+# Pick which analyses to run
+# How to do quality analyses, given plentiful gaps in the data?
+# Figure out how to do change point detection
 
 ```
 
@@ -186,8 +219,70 @@ ShenaWQ_processed <- ShenaWQ_processed %>%
 
 # Analysis
 
-```{r}
+```{r  Flow.analysis}
+# Create before and after datasets
+ShenaFlow.before <- ShenaFlow[ShenaFlow$Date < "2004-01-01",]
+ShenaFlow.after <- ShenaFlow[ShenaFlow$Date >= "2006-01-01",]
 
+# Flow Time Series
+Flow_ts <- ts(ShenaFlow[[4]], frequency = 365, start = c())
+
+# Generate the decomposition
+Flow_Decomposed <- stl(Flow_ts, s.window = "periodic")
+
+# Visualize the decomposed series. 
+plot(Flow_Decomposed)
+
+# Extract the components and turn them into data frames
+Flow_Components <- as.data.frame(Flow_Decomposed$time.series[,1:3])
+Flow_Components <- mutate(Flow_Components,
+                      Observed = ShenaFlow$Discharge,     
+                      Date = ShenaFlow$Date)
+
+# BREAK DOWN BY BEFORE/AFTER DAM REMOVAL
+# Flow Time Series: Before the Dam 
+# First crop dataset
+
+Flow_ts.before <- ts(ShenaFlow.before[[4]], frequency = 365)
+
+# Generate the decomposition
+Flow_Decomposed.before <- stl(Flow_ts.before, s.window = "periodic")
+
+# Visualize the decomposed series. 
+plot(Flow_Decomposed.before)
+
+# Extract the components and turn them into data frames
+Flow_Components.before <- as.data.frame(Flow_Decomposed.before$time.series[,1:3])
+Flow_Components.before <- mutate(Flow_Components.before,
+                      Observed = ShenaFlow.before$Discharge,
+                      Date = ShenaFlow.before$Date)
+
+# Repeat for after
+# Flow Time Series: After the Dam 
+Flow_ts.after <- ts(ShenaFlow.after[[4]], frequency = 365)
+
+# Generate the decomposition
+Flow_Decomposed.after <- stl(Flow_ts.after, s.window = "periodic")
+
+# Visualize the decomposed series. 
+plot(Flow_Decomposed.after)
+
+# Extract the components and turn them into data frames
+Flow_Components.after <- as.data.frame(Flow_Decomposed.after$time.series[,1:3])
+Flow_Components.after <- mutate(Flow_Components.after,
+                      Observed = ShenaFlow.after$Discharge,     
+                      Date = ShenaFlow.after$Date)
+
+# Graph before vs after trends
+ggplot(Flow_Components) +
+  geom_line(aes(y = Observed, x = Date), color = "gray", size = 0.25) +
+  geom_line(data = Flow_Components.before, aes(y = trend, x = Date), color = "#c13d75ff") +
+  geom_line(data = Flow_Components.after, aes(y = trend, x = Date), color = "darkslateblue") +
+  #geom_hline(yintercept = 0, lty = 2) +
+  labs(x = "", y = "Discharge (cfs)") +
+  scale_y_log10()
+
+# How to break up the analysis (before/after the dam?)
 ```
 
 
@@ -204,3 +299,5 @@ ShenaWQ_processed <- ShenaWQ_processed %>%
 * Foley, M. M., J. R. Bellmore, J. E. O'Connor, J. J. Duda, A. E. East, G. E. Grant, C. W. Anderson, J. A. Bountry, M. J. Collins, P. J. Connolly, L. S. Craig, J. E. Evans, S. L. Greene,F. J. Magilligan, C. S. Magirl, J. J. Major, G. R. Pess,T. J. Randle, P. B. Shafroth, C. E. Torgersen, D. Tullos, A. C. Wilcox. 2017. Dam removal: Listening in. Water Resources Research. 53(7):5229-5246. https://doi-org.proxy.lib.duke.edu/10.1002/2017WR020457
 
 Map source: http://www.virginiaplaces.org/watersheds/fishpassage.html
+
+Sediment deposits alter downstream tidal communities https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0187742#references
