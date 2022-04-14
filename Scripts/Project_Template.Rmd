@@ -26,6 +26,9 @@ library(lubridate)
 library(dataRetrieval)
 # install.packages("mcp")
 library(mcp)
+# install.packages("psych")
+library(psych)
+library(trend)
 
 # Set ggplot theme
 theme_set(theme_bw())
@@ -143,9 +146,7 @@ ShenaWQ_processed <- ShenaWQ %>%
          CharacteristicName, ResultMeasureValue) %>%
   mutate(Month = month(ActivityStartDate),
          Year = year(ActivityStartDate),
-         Variable = case_when(CharacteristicName == "pH" ~ "pH", 
-                              CharacteristicName == "Hardness, Ca, Mg" ~ "Hardness",
-                              CharacteristicName == "Suspended Sediment Concentration (SSC)" ~ "Sediments_mg.L",
+         Variable = case_when(CharacteristicName == "Suspended Sediment Concentration (SSC)" ~ "Sediments_mg.L",
                               CharacteristicName == "Inorganic nitrogen (nitrate and nitrite)" ~ "Nitrogen_mg.L",
                               CharacteristicName == "Orthophosphate" ~ "Phosphate_mg.L",
                               CharacteristicName == "Temperature, water" ~ "Temp_C")) %>%
@@ -196,33 +197,27 @@ ggplot(ShenaFlow, aes(x = Date, y = Discharge)) +
   geom_smooth(method = "lm") +
   scale_y_log10()
 
-# View pH over time
-ggplot(ShenaWQ_processed, aes(x = Date, y = pH)) +
-  geom_point(aes(color = Month)) +
-  geom_smooth(method = "lm")
-
 # View Nitrogen over time
 # Elevated levels expected after dam removal but eventual decline
 ggplot(ShenaWQ_processed, aes(x = Date, y = Nitrogen_mg.L)) +
   geom_point(aes(color = Month)) +
-  geom_smooth(method = "lm")
+  geom_smooth(method = "lm") 
 # pull min, max, average
 
 # View Phosphate over time
 # Elevated levels expected after dam removal but eventual decline
 ggplot(ShenaWQ_processed, aes(x = Date, y = Phosphate_mg.L)) +
   geom_point(aes(color = Month)) +
-  geom_smooth(method = "lm")
-
-# View Hardness over time
-ggplot(ShenaWQ_processed, aes(x = Date, y = Hardness)) +
-  geom_point(aes(color = Month)) +
-  geom_smooth(method = "lm")
+  geom_smooth(method = "lm") +
+  scale_x_date(limits = c(as.Date("1970-01-01"), 
+                          as.Date("2022-02-17")))
 
 # View Temp over time
 ggplot(ShenaWQ_processed, aes(x = Date, y = Temp_C)) +
   geom_point(aes(color = Month)) +
-  geom_smooth(method = "lm")
+  geom_smooth(method = "lm") +
+  scale_x_date(limits = c(as.Date("1960-01-01"), 
+                          as.Date("2022-02-17")))
 # consider pulling average max min, and average per month
 
 # View Sediments over time
@@ -245,7 +240,7 @@ ggplot(ShenaWQ_processed, aes(x = Date, y = Sediments_mg.L)) +
 
 # Analysis
 
-> Question #1: Have discharge extremes increased since the removal of the dams?
+> Question #1: Have discharge extremes increased since the removal of the dams? Has average discharge increased since dam removal?
 
 ```{r  Flow.analysis}
 # View monthly min and max flow over time
@@ -253,8 +248,17 @@ ggplot(ShenaFlow_monthly, aes(x = Date)) +
   scale_y_log10() +
   geom_line(aes(y = Discharge_min), color = "lightskyblue2") +
   geom_line(aes(y = Discharge_max), color = "steelblue3") +
-  geom_vline(xintercept = as.numeric(as.Date("2015-01-01")), linetype = 4)
-# Extreme discharge does not appear to have increased. Check yearly because monthly is difficult to see.
+  geom_vline(xintercept = as.numeric(as.Date("2004-01-01")), 
+             linetype = 4, color = "tomato4") +
+  labs(x = "Year", y = "Discharge (cfs)") +
+  annotate(geom = "text",
+           label = "2004",
+           x = as.Date("2004-01-01"),
+           y = as.numeric(100000),
+           angle = 90, 
+           vjust = 2,
+           color = "tomato4")
+# Extreme discharge does not appear to have increased. Check yearly to verify
 
 # View yearly min, max, mean flow over time
 ggplot(ShenaFlow_yearly, aes(x = Year)) +
@@ -262,31 +266,41 @@ ggplot(ShenaFlow_yearly, aes(x = Year)) +
   geom_line(aes(y = Discharge_min), color = "lightskyblue2") +
   geom_line(aes(y = Discharge_max), color = "steelblue") +
   geom_line(aes(y = Discharge_mean), color = "steelblue2") +
-  geom_vline(xintercept = as.numeric(2014), linetype = 4) +
-  labs(y = "Discharge ()")
+  geom_vline(xintercept = as.numeric(2004), 
+             linetype = 4, color = "tomato4") +
+  labs(y = "Discharge (cfs)") +
+  annotate(geom = "text",
+           label = "2004",
+           x = as.numeric(2004),
+           y = as.numeric(100000),
+           angle = 90, 
+           vjust = 2,
+           color = "tomato4")
+# Yes, extremes appear smaller since the dam removal
 
 # Create before and after datasets
 ShenaFlow.before <- ShenaFlow[ShenaFlow$Date < "2004-01-01",]
 ShenaFlow.after <- ShenaFlow[ShenaFlow$Date >= "2006-01-01",]
 
-# Flow Time Series
-Flow_ts <- ts(ShenaFlow[[4]], frequency = 365, start = c())
+# Create summary table to compare before and after dam removal
+before_summary <- describe(ShenaFlow.before[,"Discharge"], fast = T)
+after_summary <- describe(ShenaFlow.after[,"Discharge"], fast = T)
+flow_summary <- rbind(before_summary, after_summary)
+flow_summary$vars <- c("Before", "After")
+colnames(flow_summary)[1] <- "Timeframe Relative to Dam Removal"
 
-# Generate the decomposition
-Flow_Decomposed <- stl(Flow_ts, s.window = "periodic")
+# Print summary table
+kable(flow_summary, caption = "Summary Statistics for Discharge")
 
-# Visualize the decomposed series. 
-plot(Flow_Decomposed)
+# It appears that average flow may be higher since the dam removal
+# Test with a t-test
+t.test_before.after <- t.test(ShenaFlow.before$Discharge, ShenaFlow.after$Discharge, var.equal = FALSE)
+t.test_before.after
+# Not statistically different
 
-# Extract the components and turn them into data frames
-Flow_Components <- as.data.frame(Flow_Decomposed$time.series[,1:3])
-Flow_Components <- mutate(Flow_Components,
-                      Observed = ShenaFlow$Discharge,     
-                      Date = ShenaFlow$Date)
 
-# BREAK DOWN BY BEFORE/AFTER DAM REMOVAL
+# TIME SERIES BREAK DOWN BY BEFORE/AFTER DAM REMOVAL
 # Flow Time Series: Before the Dam 
-# First crop dataset
 
 Flow_ts.before <- ts(ShenaFlow.before[[4]], frequency = 365)
 
@@ -304,6 +318,7 @@ Flow_Components.before <- mutate(Flow_Components.before,
 
 # Repeat for after
 # Flow Time Series: After the Dam 
+
 Flow_ts.after <- ts(ShenaFlow.after[[4]], frequency = 365)
 
 # Generate the decomposition
@@ -326,11 +341,71 @@ ggplot(Flow_Components) +
   #geom_hline(yintercept = 0, lty = 2) +
   labs(x = "", y = "Discharge (cfs)") +
   scale_y_log10()
-
-# How to break up the analysis (before/after the dam?)
 ```
 
 
+\newpage
+
+
+> Question #2: Has there been an increase in release of sediment and nutrients over time? 
+#+ Have levels increased since dam removal, or did they spike and then stabilize?
+
+``` {r Sediment_Analysis}
+# Re-examine data, excluding small number of early points and rescaling
+ggplot(data = ShenaWQ_processed[ShenaWQ_processed$Date > "1995-01-01",], 
+             aes(x = Date, y = Sediments_mg.L, color = Month)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  scale_y_log10() 
+# Sediment levels have clearly not increased over time!
+
+# Create before and after WQ datasets
+ShenaWQ.before <- ShenaWQ_processed[ShenaWQ_processed$Date < "2004-01-01",]
+ShenaWQ.after <- ShenaWQ_processed[ShenaWQ_processed$Date >= "2006-01-01",]
+
+# Test whether average sediment varied before versus after dam removal
+t.test_sediment <- t.test(ShenaWQ.before$Sediments_mg.L, ShenaWQ.after$Sediments_mg.L, var.equal = FALSE)
+t.test_sediment
+# Sediment levels were significantly lower post (p = 0.050)
+# Not possible to see whether there was a spike immediately after dam 
+# removal because of gap in data
+
+```
+
+\newpage
+
+``` {r Nitrogen_Analysis}
+# Re-examine data, zoomed in
+ggplot(ShenaWQ_processed, aes(x = Date, y = Nitrogen_mg.L)) +
+  geom_point(aes(color = Month)) +
+  geom_smooth(method = "lm") +
+  scale_x_date(limits = c(as.Date("1972-01-01"), 
+                          as.Date("2022-02-17")))
+# Sediment levels have clearly not increased over time!
+
+# Create yearly summary table to visualize differently
+ShenaWQ_yearly <- ShenaWQ_processed %>%
+  group_by(Year) %>%
+  summarise(Nitrogen_min = min(Nitrogen_mg.L),
+            Nitrogen_max = max(Nitrogen_mg.L),
+            Nitrogen_mean = mean(Nitrogen_mg.L)) %>%
+  filter(Year >= 1972)
+
+# Plot results
+ggplot(ShenaWQ_yearly, aes(x = Year)) +
+  geom_line(aes(y = Nitrogen_min), color = "darkgoldenrod2") +
+  geom_line(aes(y = Nitrogen_max), color = "coral4") +
+  geom_line(aes(y = Nitrogen_mean), color = "chocolate") +
+  labs(y = "Nitrogen (mg/L)")
+
+# Test whether average sediment varied before versus after dam removal
+t.test_nitrogen <- t.test(ShenaWQ.before$Nitrogen_mg.L, ShenaWQ.after$Nitrogen_mg.L, var.equal = FALSE)
+t.test_nitrogen
+# Sediment levels were significantly lower post (p < 0.001)
+# Not possible to see whether there was a spike immediately after dam 
+# removal because of gap in data
+
+```
 
 \newpage
 
