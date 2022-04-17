@@ -24,11 +24,10 @@ getwd()
 library(tidyverse)
 library(lubridate)
 library(dataRetrieval)
-# install.packages("mcp")
 library(mcp)
-# install.packages("psych")
 library(psych)
 library(trend)
+library(knitr)
 
 # Set ggplot theme
 theme_set(theme_bw())
@@ -36,11 +35,39 @@ theme_set(theme_bw())
 # Set number format
 options(scipen=8)
 
-# Possible sites:
-# 01631000
-# info: https://dwr.virginia.gov/fishing/fish-passage/#orange
+```
 
 
+# Rationale and Research Questions
+
+Over the past century, perceptions of dams have gradually changed, as understanding of their serious ecological issues has increased and as existing dams have aged, creating safety concerns and the need for expensive repairs. Dams block the passage of fish and other aquatic species, seriously disrupting life cycles for some species. They also impact water quality and alter natural flow. Increasingly, dam removal is pursued as an option to deal with aging dams and restore rivers. 
+
+In this study, we seek to understand how dam removal has impacted the physical and chemical processes of one river, the Neuse River in North Carolina. From 2004-2005, three dams were removed from the Southern Fork of the Shenandoah River (see map below). The gage we are using for these analyses is downstream from these dams and should thus reflect some of the changes in flow and water quality that occurred after these removals.  
+
+Below: The red X marks the spot of the McGaheysville Dam, which were removed along with the Knightly Dam and Rockland Dam upstream in 2004-2005. All three dams were located along the south fork of the Shenandoah River, which feeds into the Potomac.
+
+![map of Neuse River](../Figures-and-Maps/mcgaheysvilledam.png)
+
+We are interested in both changes in physical process and changes in chemical processes, which can vary widely according to the specific river, its history, and the dam removal process (Foley et al 2017). Dams allow for moderation of flow, often eliminating extreme flooding events. Therefore, dam removal in combination with increasing extreme weather events due to climate change could lead to more extreme and more frequent high flow events. On the other hand, natural river systems and riparian areas can be more resilient to flood events than artificially constructed channels, so true restoration could help mitigate high flow events to some extent. 
+
+Changes in water quality are also an area of interest. Large amounts of sediment and minerals built up behind the dam may release quickly after removal, especially if the removal was sudden rather than gradual (Foley et al 2017). Over longer time, water quality is expected to improve because of restored ecological processes.
+
+1. Question 1: Have discharge levels become more extreme since dam removal?
+
+2. Question 2: Has there been an increase in release of sediment and nutrients over time? 
+  + Have levels steadily increased since dam removal, or did they spike and then stabilize?
+
+
+
+\newpage
+
+# Dataset Information
+
+The dataset consists of discharge and water quality data from stream gage #01631000, which is located on the South Fork of the Shenandoah River downstream from the three dam removal sites. These data were obtained from USGS StreamStats: https://streamstats.usgs.gov/ss/. 
+
+The dataset includes 183 parameters, but these parameters vary widely in terms of how many datapoints were collected. To choose water quality variables, I made a list of the top ten water quality parameters according to the number of observations, and then selected three that I thought would be particularly interesting and informative in light of dam removal. These three were: suspended sediments, nitrogen, and phosphate. Temperature is also included in the exploratory analyses. All of these variables could be expected to change after dam removal.  
+
+``` {r load_data, include = FALSE}
 # Load datasets
 # Download list of available parameters
 ShenaParams <- whatNWISdata(siteNumbers = "01631000")
@@ -50,12 +77,12 @@ ShenaFlow <- readNWISdv(siteNumbers = "01631000",
                      startDate = "",
                      endDate = "")
 
-# Most common parameters:
+# Most common WQ parameters:
 # 00095 Specific conductance
 # 00010 Temperature C
 # 80154 Suspended sediments mg/L
 # 00400 pH
-# 00900 Hardness - sum of calcium and magnesium. Check time scales of each
+# 00900 Hardness - sum of calcium and magnesium
 # 00660 Orthophosphate mg/L
 # 00631 Nitrate mg/L
 # 00945 Sulfate, mg/L
@@ -78,32 +105,15 @@ ShenaWQ  <- readWQPqw(siteNumbers = "USGS-01631000",
 
 ```
 
+## Data Wrangling
 
-# Rationale and Research Questions
+The data were downloaded as two separate datasets: discharge ('ShenaFlow') and water quality ('ShenaWQ'). Column names were changed from defaults to be more comprehensible. Month and Year columns were added to each dataset.
 
-Over the past century, perceptions of dams have gradually changed, as understanding of their serious ecological issues has increased and as existing dams have aged, creating safety concerns and the need for expensive repairs. Dams block the passage of fish and other aquatic species, seriously disrupting life cycles for some species. They also impact water quality and alter natural flow. Increasingly, dam removal is pursued as an option to deal with aging dams and restore rivers. 
+The discharge dataset was summarized into two dataframes, one by month and the other by year. In both cases, discharge minimum, mean, and maximum were calculated according to the summary unit. 
 
-In this study, we seek to understand how dam removal has impacted the physical and chemical processes of one river, the Neuse River in North Carolina. From 2004-2005, three dams were removed from the Southern Fork of the Shenandoah River (see map below). The gage we are using for these analyses is downstream from these dams and should thus reflect some of the changes in flow and water quality that occurred after these removals.  
+The water quality dataset was transformed into a wider dataset with the four parameters of interest divided into separate columns, instead of being compiled in two columns by characteristic and value. The resulting dataframe was also summarized by month, with minimum, mean, and maximum calculated for each of the four parameters. 
 
-Below: The red X marks the spot of the McGaheysville Dam, which were removed along with the Knightly Dam and Rockland Dam upstream in 2004-2005. All three dams were located along the south fork of the Shenandoah River, which feeds into the Potomac.
-![map of Neuse River](../Figures-and-Maps/mcgaheysvilledam.png)
-
-We are interested in both changes in physical process and changes in chemical processes, which can vary widely according to the specific river, its history, and the dam removal process (Foley et al 2017). Dams allow for moderation of flow, often eliminating extreme flooding events. Therefore, dam removal in combination with increasing extreme weather events due to climate change could lead to more extreme and more frequent high flow events. On the other hand, natural river systems and riparian areas can be more resilient to flood events than artificially constructed channels, so true restoration could help mitigate high flow events to some extent. 
-
-Changes in water quality are also an area of interest. Large amounts of sediment and minerals built up behind the dam may release quickly after removal, especially if the removal was sudden rather than gradual (Foley et al 2017). Over longer time, water quality is expected to improve because of restored ecological processes.
-
-## Question 1: Have discharge levels become more extreme since dam removal?
-
-## Question 2: Has there been an increase in release of sediment and nutrients over time? 
-#+ Have levels steadily increased since dam removal, or did they spike and then stabilize?
-
-
-
-\newpage
-
-# Dataset Information
-
-```{r wrangling}
+```{r wrangling, include = FALSE}
 # Change column names
 names(ShenaFlow)[4:5] <- c("Discharge", "Approval.Code")
 
@@ -118,6 +128,9 @@ dim(ShenaFlow)
 str(ShenaFlow)
 # Check Flow data summary
 summary(ShenaFlow)
+
+# Save ShenaFlow file
+write.csv("../Data/Processed/ShenaFlow.csv")
 
 # Create monthly summary dataset of discharge
 ShenaFlow_monthly <- ShenaFlow %>%
@@ -152,7 +165,7 @@ ShenaWQ_processed <- ShenaWQ %>%
                               CharacteristicName == "Temperature, water" ~ "Temp_C")) %>%
   select(-CharacteristicName) %>%
   pivot_wider(names_from = "Variable", values_from = "ResultMeasureValue") %>%
-  unnest(Calcium_mg.L:Sediments_mg.L)
+  unnest(cols = c(Sediments_mg.L, Nitrogen_mg.L, Phosphate_mg.L, Temp_C))
 
 # Rename the date column
 names(ShenaWQ_processed)[2] <- "Date"
@@ -163,6 +176,9 @@ dim(ShenaWQ_processed)
 summary(ShenaWQ_processed)
 # Check WQ data formats
 str(ShenaWQ_processed)
+
+# Save ShenaWQ file
+write.csv("../Data/Processed/ShenaWQ.csv")
 
 # Create monthly summary dataset of water quality
 ShenaWQ_monthly <- ShenaWQ_processed %>%
@@ -179,10 +195,17 @@ ShenaWQ_monthly <- ShenaWQ_processed %>%
             Phosphate_min = min(Phosphate_mg.L),
             Phosphate_max = max(Phosphate_mg.L),
             Phosphate_mean = mean(Phosphate_mg.L)) %>%
-  mutate(Date = as.Date(paste(Year, Month, "1", sep = "-"), format = "%Y-%m-%d"))
+  mutate(Date = as.Date(paste(Year, Month, "1", sep = "-"), format = "%Y-%m-%d")) #%>%
+  #unnest(Sediment_min:Phosphate_mean)
+
 # Check dimensions and summary of dataset
 dim(ShenaWQ_monthly)
 summary(ShenaWQ_monthly)
+str(ShenaWQ_monthly)
+
+```
+
+```{r }
 
 ```
 
@@ -286,6 +309,7 @@ ShenaFlow.after <- ShenaFlow[ShenaFlow$Date >= "2006-01-01",]
 before_summary <- describe(ShenaFlow.before[,"Discharge"], fast = T)
 after_summary <- describe(ShenaFlow.after[,"Discharge"], fast = T)
 flow_summary <- rbind(before_summary, after_summary)
+# rename columns
 flow_summary$vars <- c("Before", "After")
 colnames(flow_summary)[1] <- "Timeframe Relative to Dam Removal"
 
@@ -297,6 +321,24 @@ kable(flow_summary, caption = "Summary Statistics for Discharge")
 t.test_before.after <- t.test(ShenaFlow.before$Discharge, ShenaFlow.after$Discharge, var.equal = FALSE)
 t.test_before.after
 # Not statistically different
+```
+
+```{r flow_time_series}
+# FLOW TIME SERIES
+
+Flow_ts <- ts(ShenaFlow[[4]], frequency = 365)
+
+# Generate the decomposition
+Flow_Decomposed <- stl(Flow_ts, s.window = "periodic")
+
+# Visualize the decomposed series. 
+plot(Flow_Decomposed)
+
+# Extract the components and turn them into data frames
+Flow_Components <- as.data.frame(Flow_Decomposed$time.series[,1:3])
+Flow_Components <- mutate(Flow_Components,
+                      Observed = ShenaFlow$Discharge,
+                      Date = ShenaFlow$Date)
 
 
 # TIME SERIES BREAK DOWN BY BEFORE/AFTER DAM REMOVAL
@@ -421,3 +463,5 @@ t.test_nitrogen
 Map source: http://www.virginiaplaces.org/watersheds/fishpassage.html
 
 Sediment deposits alter downstream tidal communities https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0187742#references
+
+info: https://dwr.virginia.gov/fishing/fish-passage/#orange
