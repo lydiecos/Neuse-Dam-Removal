@@ -28,6 +28,7 @@ library(mcp)
 library(psych)
 library(trend)
 library(knitr)
+library(summarytools)
 
 # Set ggplot theme
 theme_set(theme_bw())
@@ -205,7 +206,17 @@ str(ShenaWQ_monthly)
 
 ```
 
-```{r }
+```{r tables_of_results, echo = FALSE}
+ShenaFlow %>%
+  select(Discharge) %>%
+  describe(., fast = T) %>%
+  kable()
+
+ShenaWQ_processed %>%
+  select(Nitrogen_mg.L, Temp_C, Phosphate_mg.L, Sediments_mg.L) %>%
+  describe(., fast = T) %>%
+  kable()
+
 
 ```
 
@@ -213,55 +224,66 @@ str(ShenaWQ_monthly)
 
 # Exploratory Analysis 
 
-```{r}
+Below are exploratory plots showing each parameter over time, with a linear depiction of overall trend.
+
+```{r exploration_plot1, echo=FALSE, warning=FALSE, message=FALSE, fig.cap = "Discharge over time"}
 # View flow over time
 ggplot(ShenaFlow, aes(x = Date, y = Discharge)) +
   geom_line() +
   geom_smooth(method = "lm") +
-  scale_y_log10()
+  scale_y_log10() +
+  labs(y = "Discharge (cfs)")
+```
 
-# View Nitrogen over time
-# Elevated levels expected after dam removal but eventual decline
-ggplot(ShenaWQ_processed, aes(x = Date, y = Nitrogen_mg.L)) +
-  geom_point(aes(color = Month)) +
-  geom_smooth(method = "lm") 
-# pull min, max, average
-
-# View Phosphate over time
-# Elevated levels expected after dam removal but eventual decline
-ggplot(ShenaWQ_processed, aes(x = Date, y = Phosphate_mg.L)) +
-  geom_point(aes(color = Month)) +
-  geom_smooth(method = "lm") +
-  scale_x_date(limits = c(as.Date("1970-01-01"), 
-                          as.Date("2022-02-17")))
-
-# View Temp over time
-ggplot(ShenaWQ_processed, aes(x = Date, y = Temp_C)) +
-  geom_point(aes(color = Month)) +
-  geom_smooth(method = "lm") +
-  scale_x_date(limits = c(as.Date("1960-01-01"), 
-                          as.Date("2022-02-17")))
-# consider pulling average max min, and average per month
-
+```{r exploration_plot2, echo=FALSE, warning=FALSE, message=FALSE, fig.cap = "Sediment over time"}
 # View Sediments over time
 # Predict increased sediment load right after dam removal, but eventual decline
 ggplot(ShenaWQ_processed, aes(x = Date, y = Sediments_mg.L)) +
   geom_point(aes(color = Month)) +
   geom_smooth(method = "lm") +
   scale_x_date(limits = c(as.Date("1970-01-01"), 
-                          as.Date("2022-02-17")))
-
-# TO DO
-# Pick which analyses to run
-# How to do quality analyses, given plentiful gaps in the data?
-# Figure out how to do change point detection
+                          as.Date("2022-02-17"))) +
+  labs(y = "Suspended Sediment Concentration (mg/L)")
 
 ```
+
+```{r exploration_plot3, echo=FALSE, warning=FALSE, message=FALSE, fig.cap = "Nitrogen over time"}
+# View Nitrogen over time
+# Elevated levels expected after dam removal but eventual decline
+ggplot(ShenaWQ_processed, aes(x = Date, y = Nitrogen_mg.L)) +
+  geom_point(aes(color = Month)) +
+  geom_smooth(method = "lm") +
+  labs(y = "Nitrogen (mg/L)")
+```
+
+```{r exploration_plot4, echo=FALSE, warning=FALSE, message=FALSE, fig.cap = "Phosphate over time"}
+# View Phosphate over time
+# Elevated levels expected after dam removal but eventual decline
+ggplot(ShenaWQ_processed, aes(x = Date, y = Phosphate_mg.L)) +
+  geom_point(aes(color = Month)) +
+  geom_smooth(method = "lm") +
+  scale_x_date(limits = c(as.Date("1970-01-01"), 
+                          as.Date("2022-02-17"))) +
+  labs(y = "Phosphate (mg/L)")
+```
+
+```{r exploration_plot5, echo=FALSE, warning=FALSE, message=FALSE, fig.cap = "Temperature over time"}
+# View Temp over time
+ggplot(ShenaWQ_processed, aes(x = Date, y = Temp_C)) +
+  geom_point(aes(color = Month)) +
+  geom_smooth(method = "lm") +
+  scale_x_date(limits = c(as.Date("1960-01-01"), 
+                          as.Date("2022-02-17"))) +
+  labs(y = "Temperature (C)")
+```
+
 
 
 \newpage
 
 # Analysis
+
+## Part 1
 
 > Question #1: Have discharge extremes increased since the removal of the dams? Has average discharge increased since dam removal?
 
@@ -323,7 +345,7 @@ t.test_before.after
 # Not statistically different
 ```
 
-```{r flow_time_series}
+```{r flow_time_series, include = FALSE}
 # FLOW TIME SERIES
 
 Flow_ts <- ts(ShenaFlow[[4]], frequency = 365)
@@ -374,7 +396,9 @@ Flow_Components.after <- as.data.frame(Flow_Decomposed.after$time.series[,1:3])
 Flow_Components.after <- mutate(Flow_Components.after,
                       Observed = ShenaFlow.after$Discharge,     
                       Date = ShenaFlow.after$Date)
+```
 
+```{r flow_ts_graph, echo=FALSE, warning=FALSE, message=FALSE}
 # Graph before vs after trends
 ggplot(Flow_Components) +
   geom_line(aes(y = Observed, x = Date), color = "gray", size = 0.25) +
@@ -388,9 +412,12 @@ ggplot(Flow_Components) +
 
 \newpage
 
+## Part 2
 
 > Question #2: Has there been an increase in release of sediment and nutrients over time? 
-#+ Have levels increased since dam removal, or did they spike and then stabilize?
+ + Have levels increased since dam removal, or did they spike and then stabilize?
+ 
+### Sediment
 
 ``` {r Sediment_Analysis}
 # Re-examine data, excluding small number of early points and rescaling
@@ -399,7 +426,6 @@ ggplot(data = ShenaWQ_processed[ShenaWQ_processed$Date > "1995-01-01",],
   geom_point() +
   geom_smooth(method = "lm") +
   scale_y_log10() 
-# Sediment levels have clearly not increased over time!
 
 # Create before and after WQ datasets
 ShenaWQ.before <- ShenaWQ_processed[ShenaWQ_processed$Date < "2004-01-01",]
@@ -416,14 +442,17 @@ t.test_sediment
 
 \newpage
 
-``` {r Nitrogen_Analysis}
+### Nitrogen
+
+Have ni
+
+``` {r Nitrogen_Analysis, }
 # Re-examine data, zoomed in
 ggplot(ShenaWQ_processed, aes(x = Date, y = Nitrogen_mg.L)) +
   geom_point(aes(color = Month)) +
   geom_smooth(method = "lm") +
   scale_x_date(limits = c(as.Date("1972-01-01"), 
                           as.Date("2022-02-17")))
-# Sediment levels have clearly not increased over time!
 
 # Create yearly summary table to visualize differently
 ShenaWQ_yearly <- ShenaWQ_processed %>%
