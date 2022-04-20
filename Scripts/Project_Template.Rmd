@@ -415,9 +415,10 @@ ggplot(Flow_Components) +
 ## Part 2
 
 > Question #2: Has there been an increase in release of sediment and nutrients over time? 
- + Have levels increased since dam removal, or did they spike and then stabilize?
  
 ### Sediment
+
+> Have sediment levels changed since dam removal?
 
 ``` {r Sediment_Analysis}
 # Re-examine data, excluding small number of early points and rescaling
@@ -444,9 +445,9 @@ t.test_sediment
 
 ### Nitrogen
 
-Have ni
+Have nitrogen levels changed since dam removal?
 
-``` {r Nitrogen_Analysis, }
+``` {r Nitrogen_Analysis, message = FALSE, warning = FALSE}
 # Re-examine data, zoomed in
 ggplot(ShenaWQ_processed, aes(x = Date, y = Nitrogen_mg.L)) +
   geom_point(aes(color = Month)) +
@@ -459,7 +460,10 @@ ShenaWQ_yearly <- ShenaWQ_processed %>%
   group_by(Year) %>%
   summarise(Nitrogen_min = min(Nitrogen_mg.L),
             Nitrogen_max = max(Nitrogen_mg.L),
-            Nitrogen_mean = mean(Nitrogen_mg.L)) %>%
+            Nitrogen_mean = mean(Nitrogen_mg.L),
+            Phosphate_min = min(Phosphate_mg.L),
+            Phosphate_max = max(Phosphate_mg.L),
+            Phosphate_mean = mean(Phosphate_mg.L)) %>%
   filter(Year >= 1972)
 
 # Plot results
@@ -468,17 +472,47 @@ ggplot(ShenaWQ_yearly, aes(x = Year)) +
   geom_line(aes(y = Nitrogen_max), color = "coral4") +
   geom_line(aes(y = Nitrogen_mean), color = "chocolate") +
   labs(y = "Nitrogen (mg/L)")
+# Looks like levels have been lower since dam removal but are possibly 
+# on an increase over the past decade
 
-# Test whether average sediment varied before versus after dam removal
+# Test whether nitrogen levels were different before versus after dam removal
 t.test_nitrogen <- t.test(ShenaWQ.before$Nitrogen_mg.L, ShenaWQ.after$Nitrogen_mg.L, var.equal = FALSE)
 t.test_nitrogen
-# Sediment levels were significantly lower post (p < 0.001)
-# Not possible to see whether there was a spike immediately after dam 
-# removal because of gap in data
+# Nitrogen levels were significantly lower post (p < 0.001)
+# 
 
 ```
 
+
+``` {r Phosphorus_Analysis, message = FALSE, warning = FALSE}
+# Re-examine data, zoomed in
+ggplot(ShenaWQ_processed, aes(x = Date, y = Phosphate_mg.L)) +
+  geom_point(aes(color = Month)) +
+  geom_smooth(method = "lm") +
+  scale_x_date(limits = c(as.Date("1972-01-01"), 
+                          as.Date("2022-02-17"))) +
+  labs(y = "Phosphate (mg/L)")
+
+# Plot yearly trends
+ggplot(ShenaWQ_yearly, aes(x = Year)) +
+  geom_line(aes(y = Phosphate_min), color = "darkgoldenrod2") +
+  geom_line(aes(y = Phosphate_max), color = "coral4") +
+  geom_line(aes(y = Phosphate_mean), color = "chocolate") +
+  labs(y = "Phosphate (mg/L)")
+# Weirdness going on here; check df
+
+# Test whether nitrogen levels were different before versus after dam removal
+t.test_nitrogen <- t.test(ShenaWQ.before$Nitrogen_mg.L, ShenaWQ.after$Nitrogen_mg.L, var.equal = FALSE)
+t.test_nitrogen
+# Nitrogen levels were significantly lower post (p < 0.001)
+# 
+
+```
+
+
 \newpage
+
+
 
 # Summary and Conclusions
 
