@@ -14,6 +14,12 @@ editor_options:
   chunk_output_type: console
 ---
 
+![](https://usfwsnortheast.files.wordpress.com/2016/12/5-riverton-dam-was-removed-on-the-beautiful-north-fork-shenandoah-river-this-opened-100-miles-of-the-north-fork-shenandoah-river-to-migratory-fish-returning-to-the-potomac-river-from-t.jpg)
+
+\newpage
+\tableofcontents 
+\listoftables 
+\listoffigures 
 \newpage
 
 ```{r setup, include=FALSE}
@@ -43,20 +49,19 @@ options(scipen=8)
 
 Over the past century, perceptions of dams have gradually changed, as understanding of their serious ecological issues has increased and as existing dams have aged, creating safety concerns and the need for expensive repairs. Dams block the passage of fish and other aquatic species, seriously disrupting life cycles for some species. They also impact water quality and alter natural flow. Increasingly, dam removal is pursued as an option to deal with aging dams and restore rivers. 
 
-In this study, we seek to understand how dam removal has impacted the physical and chemical processes of one river, the Neuse River in North Carolina. From 2004-2005, three dams were removed from the Southern Fork of the Shenandoah River (see map below). The gage we are using for these analyses is downstream from these dams and should thus reflect some of the changes in flow and water quality that occurred after these removals.  
+In this study, I seek to understand how dam removal has impacted the physical and chemical processes of one river, the Neuse River in North Carolina. From 2004-2005, three dams were removed from the Southern Fork of the Shenandoah River (see map below). The gage I will use for these analyses is downstream from these dams and should thus reflect some of the changes in flow and water quality that occurred after these removals.  
 
 Below: The red X marks the spot of the McGaheysville Dam, which were removed along with the Knightly Dam and Rockland Dam upstream in 2004-2005. All three dams were located along the south fork of the Shenandoah River, which feeds into the Potomac.
 
 ![map of Neuse River](../Figures-and-Maps/mcgaheysvilledam.png)
 
-We are interested in both changes in physical process and changes in chemical processes, which can vary widely according to the specific river, its history, and the dam removal process (Foley et al 2017). Dams allow for moderation of flow, often eliminating extreme flooding events. Therefore, dam removal in combination with increasing extreme weather events due to climate change could lead to more extreme and more frequent high flow events. On the other hand, natural river systems and riparian areas can be more resilient to flood events than artificially constructed channels, so true restoration could help mitigate high flow events to some extent. 
+I am interested in both changes in physical process and changes in chemical processes, which can vary widely according to the specific river, its history, and the dam removal process (Foley et al 2017). Dams allow for moderation of flow, often eliminating extreme flooding events. Therefore, dam removal in combination with increasing extreme weather events due to climate change could lead to more extreme and more frequent high flow events. On the other hand, natural river systems and riparian areas can be more resilient to flood events than artificially constructed channels, so true restoration could help mitigate high flow events to some extent. 
 
 Changes in water quality are also an area of interest. Large amounts of sediment and minerals built up behind the dam may release quickly after removal, especially if the removal was sudden rather than gradual (Foley et al 2017). Over longer time, water quality is expected to improve because of restored ecological processes.
 
 1. Question 1: Have discharge levels become more extreme since dam removal?
 
-2. Question 2: Has there been an increase in release of sediment and nutrients over time? 
-  + Have levels steadily increased since dam removal, or did they spike and then stabilize?
+2. Question 2: Has there been a change in release of sediment and nutrients since the dam removal? 
 
 
 
@@ -80,29 +85,26 @@ ShenaFlow <- readNWISdv(siteNumbers = "01631000",
 
 # Most common WQ parameters:
 # 00095 Specific conductance
-# 00010 Temperature C
-# 80154 Suspended sediments mg/L
+# 00010 Temperature C *
+# 80154 Suspended sediments mg/L *
 # 00400 pH
 # 00900 Hardness - sum of calcium and magnesium
-# 00660 Orthophosphate mg/L
-# 00631 Nitrate mg/L
+# 00660 Orthophosphate mg/L *
+# 00631 Nitrate mg/L *
 # 00945 Sulfate, mg/L
 # 00925 Magnesium, mg/L
 # 00915 Calcium, mg/L
+
+# *working with the starred parameters
 
 # Download water quality data
 ShenaWQ  <- readWQPqw(siteNumbers = "USGS-01631000",
                       parameterCd = c("00631", # nitrate, mg/L
                                       "00660", # phosphate, mg/L
-                                      "00915", # calcium, filtered mg/L
-                                      "00925", # magnesium, filtered mg/L
-                                      "00400", # pH
                                       "80154", # Suspended sediments mg/L
-                                      "00095", # Specific conductance
-                                      "00900", # Hardness 
                                       "00010"), # Temperature C
                       startDate = "",
-                      endDate = )
+                      endDate = "")
 
 ```
 
@@ -114,7 +116,9 @@ The discharge dataset was summarized into two dataframes, one by month and the o
 
 The water quality dataset was transformed into a wider dataset with the four parameters of interest divided into separate columns, instead of being compiled in two columns by characteristic and value. The resulting dataframe was also summarized by month, with minimum, mean, and maximum calculated for each of the four parameters. 
 
-```{r wrangling, include = FALSE}
+The exact timing of dam removal is unknown. Given that three dams were removed between 2004-2005, subsequent analyses that compare "before dam removal" versus "after dam removal" exclude the years 2004-2005 entirely. Most of the water quality variables did not include data for these years anyway.
+
+```{r wrangling_flow, include = FALSE, warning=FALSE, message=FALSE}
 # Change column names
 names(ShenaFlow)[4:5] <- c("Discharge", "Approval.Code")
 
@@ -153,7 +157,10 @@ ShenaFlow_yearly <- ShenaFlow %>%
 # Check dimensions and summary of dataset
 dim(ShenaFlow_yearly)
 summary(ShenaFlow_yearly)
+```
 
+
+```{r wrangling_WQ, include=FALSE, warning=FALSE, message=FALSE}
 # Convert WQ to wider dataframe with characteristics of interest
 ShenaWQ_processed <- ShenaWQ %>%
   select(MonitoringLocationIdentifier, ActivityStartDate, HydrologicCondition,
@@ -206,25 +213,23 @@ str(ShenaWQ_monthly)
 
 ```
 
-```{r tables_of_results, echo = FALSE}
-ShenaFlow %>%
+```{r tables_of_results, echo = FALSE, warning=FALSE, message=FALSE}
+flow_summary_all <- ShenaFlow %>%
   select(Discharge) %>%
-  describe(., fast = T) %>%
-  kable()
+  describe(., fast = T)
 
 ShenaWQ_processed %>%
   select(Nitrogen_mg.L, Temp_C, Phosphate_mg.L, Sediments_mg.L) %>%
   describe(., fast = T) %>%
+  rbind(flow_summary_all, .)
   kable()
-
-
 ```
 
 \newpage
 
 # Exploratory Analysis 
 
-Below are exploratory plots showing each parameter over time, with a linear depiction of overall trend.
+Below are exploratory plots showing each parameter over time.
 
 ```{r exploration_plot1, echo=FALSE, warning=FALSE, message=FALSE, fig.cap = "Discharge over time"}
 # View flow over time
@@ -241,8 +246,6 @@ ggplot(ShenaFlow, aes(x = Date, y = Discharge)) +
 ggplot(ShenaWQ_processed, aes(x = Date, y = Sediments_mg.L)) +
   geom_point(aes(color = Month)) +
   geom_smooth(method = "lm") +
-  scale_x_date(limits = c(as.Date("1970-01-01"), 
-                          as.Date("2022-02-17"))) +
   labs(y = "Suspended Sediment Concentration (mg/L)")
 
 ```
@@ -262,8 +265,6 @@ ggplot(ShenaWQ_processed, aes(x = Date, y = Nitrogen_mg.L)) +
 ggplot(ShenaWQ_processed, aes(x = Date, y = Phosphate_mg.L)) +
   geom_point(aes(color = Month)) +
   geom_smooth(method = "lm") +
-  scale_x_date(limits = c(as.Date("1970-01-01"), 
-                          as.Date("2022-02-17"))) +
   labs(y = "Phosphate (mg/L)")
 ```
 
@@ -272,8 +273,6 @@ ggplot(ShenaWQ_processed, aes(x = Date, y = Phosphate_mg.L)) +
 ggplot(ShenaWQ_processed, aes(x = Date, y = Temp_C)) +
   geom_point(aes(color = Month)) +
   geom_smooth(method = "lm") +
-  scale_x_date(limits = c(as.Date("1960-01-01"), 
-                          as.Date("2022-02-17"))) +
   labs(y = "Temperature (C)")
 ```
 
@@ -283,28 +282,34 @@ ggplot(ShenaWQ_processed, aes(x = Date, y = Temp_C)) +
 
 # Analysis
 
-## Part 1
+## Question 1: Flow
 
-> Question #1: Have discharge extremes increased since the removal of the dams? Has average discharge increased since dam removal?
+> Question #1: Have discharge extremes increased since the removal of the dams? Has average discharge changed since dam removal?
 
-```{r  Flow.analysis}
+View minimum and maximum flow by month over time. The y-axis is logged to more easily view the distribution of values.
+
+```{r Flow.analysis, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Monthly Minimum and Maximum Discharge Over Time"}
 # View monthly min and max flow over time
 ggplot(ShenaFlow_monthly, aes(x = Date)) +
   scale_y_log10() +
-  geom_line(aes(y = Discharge_min), color = "lightskyblue2") +
-  geom_line(aes(y = Discharge_max), color = "steelblue3") +
+  geom_line(aes(y = Discharge_min), color = "mediumpurple") +
+  geom_line(aes(y = Discharge_max), color = "lightskyblue2", alpha = 0.8) +
   geom_vline(xintercept = as.numeric(as.Date("2004-01-01")), 
-             linetype = 4, color = "tomato4") +
-  labs(x = "Year", y = "Discharge (cfs)") +
+             linetype = 4, color = "gray47") +
+  labs(x = "Year", y = "Discharge (cfs, logged)") +
   annotate(geom = "text",
            label = "2004",
            x = as.Date("2004-01-01"),
            y = as.numeric(100000),
            angle = 90, 
            vjust = 2,
-           color = "tomato4")
+           color = "gray47")
 # Extreme discharge does not appear to have increased. Check yearly to verify
+```
 
+To better visualize extremes, we'll now look at minimum and maximum flow along with average flow by year. Again, the y-axis is logged to aid with visualization. 
+
+```{r Flow.analysis1, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Yearly Minimum, Maximum, and Average Discharge Over Time"}
 # View yearly min, max, mean flow over time
 ggplot(ShenaFlow_yearly, aes(x = Year)) +
   scale_y_log10() +
@@ -322,7 +327,13 @@ ggplot(ShenaFlow_yearly, aes(x = Year)) +
            vjust = 2,
            color = "tomato4")
 # Yes, extremes appear smaller since the dam removal
+```
 
+These two graphs both suggest that maximum and minimum flows have not gotten more extreme since dam removal; in fact, they appear to be less extreme.
+
+\newpage
+
+```{r Flow.analysis2, warning=FALSE, message=FALSE, echo=FALSE}
 # Create before and after datasets
 ShenaFlow.before <- ShenaFlow[ShenaFlow$Date < "2004-01-01",]
 ShenaFlow.after <- ShenaFlow[ShenaFlow$Date >= "2006-01-01",]
@@ -333,11 +344,15 @@ after_summary <- describe(ShenaFlow.after[,"Discharge"], fast = T)
 flow_summary <- rbind(before_summary, after_summary)
 # rename columns
 flow_summary$vars <- c("Before", "After")
-colnames(flow_summary)[1] <- "Timeframe Relative to Dam Removal"
+colnames(flow_summary)[1] <- "Timeframe"
 
 # Print summary table
 kable(flow_summary, caption = "Summary Statistics for Discharge")
+```
 
+This table confirms that the river has not experienced more extreme discharge events since dam removal. Additionally, average flow appears to be higher since dam removal. Verify with a t-test:
+
+```{r Flow.analysis3, warning=FALSE, message=FALSE, echo=FALSE}
 # It appears that average flow may be higher since the dam removal
 # Test with a t-test
 t.test_before.after <- t.test(ShenaFlow.before$Discharge, ShenaFlow.after$Discharge, var.equal = FALSE)
@@ -345,7 +360,10 @@ t.test_before.after
 # Not statistically different
 ```
 
+Flow levels have not been significantly different before (*M* = 1594.2, *SD* = 2687.3) versus after (*M* = 1640.3, *SD* = 2009.5) the dam removal (*p* = 0.140, *t*(11202) = -1.48).
+
 ```{r flow_time_series, include = FALSE}
+# Out of interest:
 # FLOW TIME SERIES
 
 Flow_ts <- ts(ShenaFlow[[4]], frequency = 365)
@@ -398,40 +416,64 @@ Flow_Components.after <- mutate(Flow_Components.after,
                       Date = ShenaFlow.after$Date)
 ```
 
+\newpage
+
+We can view overall trends by running a time series that takes seasonality into account. In the resulting graph, below, we see general trend before the dam removal in red and after the dam removal in purple. 
+
 ```{r flow_ts_graph, echo=FALSE, warning=FALSE, message=FALSE}
 # Graph before vs after trends
 ggplot(Flow_Components) +
   geom_line(aes(y = Observed, x = Date), color = "gray", size = 0.25) +
   geom_line(data = Flow_Components.before, aes(y = trend, x = Date), color = "#c13d75ff") +
   geom_line(data = Flow_Components.after, aes(y = trend, x = Date), color = "darkslateblue") +
-  #geom_hline(yintercept = 0, lty = 2) +
   labs(x = "", y = "Discharge (cfs)") +
-  scale_y_log10()
+  scale_y_log10() 
 ```
 
 
 \newpage
 
-## Part 2
+## Question 2
 
-> Question #2: Has there been an increase in release of sediment and nutrients over time? 
+**Question #2: Has there been a change in release of sediment and nutrients since the dam removal?** 
  
 ### Sediment
 
-> Have sediment levels changed since dam removal?
+**Have sediment levels changed since dam removal?**
 
-``` {r Sediment_Analysis}
+``` {r Sediment_Analysis, warning=FALSE, message=FALSE, include=FALSE}
 # Re-examine data, excluding small number of early points and rescaling
 ggplot(data = ShenaWQ_processed[ShenaWQ_processed$Date > "1995-01-01",], 
              aes(x = Date, y = Sediments_mg.L, color = Month)) +
   geom_point() +
   geom_smooth(method = "lm") +
   scale_y_log10() 
+```
 
+View summary statistics comparing sediment levels before versus after dam removal:
+
+```{r Sediment.analysis2, warning=FALSE, message=FALSE, echo=FALSE}
 # Create before and after WQ datasets
-ShenaWQ.before <- ShenaWQ_processed[ShenaWQ_processed$Date < "2004-01-01",]
-ShenaWQ.after <- ShenaWQ_processed[ShenaWQ_processed$Date >= "2006-01-01",]
+ShenaWQ.before <- as.data.frame(ShenaWQ_processed[ShenaWQ_processed$Date < "2004-01-01",])
+ShenaWQ.after <- as.data.frame(ShenaWQ_processed[ShenaWQ_processed$Date >= "2006-01-01",])
 
+# Create summary table to compare before and after dam removal
+before_summary <- describe(ShenaWQ.before["Sediments_mg.L"], fast = T)
+after_summary <- describe(ShenaWQ.after["Sediments_mg.L"], fast = T)
+flow_summary_sed <- rbind(before_summary, after_summary)
+# rename columns
+flow_summary_sed$vars <- c("Before", "After")
+colnames(flow_summary_sed)[1] <- "Timeframe"
+
+# Print summary table
+kable(flow_summary_sed, caption = "Summary Statistics for Sediment")
+```
+
+Sediment levels appear to be lower on average since dam removal.
+
+Test whether average sediment has been significantly different before versus after dam removal:
+
+```{r Sediment.analysis3, warning=FALSE, message=FALSE, echo=FALSE}
 # Test whether average sediment varied before versus after dam removal
 t.test_sediment <- t.test(ShenaWQ.before$Sediments_mg.L, ShenaWQ.after$Sediments_mg.L, var.equal = FALSE)
 t.test_sediment
@@ -441,50 +483,94 @@ t.test_sediment
 
 ```
 
+Yes, sediment levels have been significantly different (*t*(148.63) = 2.00, *p* = 0.047). Specifically, they have been lower post-dam removal (*M*  = 40.64, *SD* = 79.63) compared with pre-dam removal (*M*= 83.15, *SD* = 242.94).
+
 \newpage
 
 ### Nitrogen
 
 Have nitrogen levels changed since dam removal?
 
-``` {r Nitrogen_Analysis, message = FALSE, warning = FALSE}
+``` {r Nitrogen_Analysis, message=FALSE, warning=FALSE, include=FALSE}
 # Re-examine data, zoomed in
 ggplot(ShenaWQ_processed, aes(x = Date, y = Nitrogen_mg.L)) +
   geom_point(aes(color = Month)) +
   geom_smooth(method = "lm") +
   scale_x_date(limits = c(as.Date("1972-01-01"), 
                           as.Date("2022-02-17")))
+```
 
+View summary statistics comparing nitrogen levels before versus after dam removal:
+
+```{r Nitrogen.analysis2, warning=FALSE, message=FALSE, echo=FALSE}
+# Create summary table to compare before and after dam removal
+before_summary <- describe(ShenaWQ.before["Nitrogen_mg.L"], fast = T)
+after_summary <- describe(ShenaWQ.after["Nitrogen_mg.L"], fast = T)
+flow_summary_n <- rbind(before_summary, after_summary)
+# rename columns
+flow_summary_n$vars <- c("Before", "After")
+colnames(flow_summary_n)[1] <- "Timeframe"
+
+# Print summary table
+kable(flow_summary_n, caption = "Summary Statistics for Nitrogen")
+```
+
+Visualize yearly minimum, mean, and maximum nitrogen levels:
+
+``` {r Nitrogen_Analysis3, message=FALSE, warning=FALSE, echo=FALSE}
 # Create yearly summary table to visualize differently
 ShenaWQ_yearly <- ShenaWQ_processed %>%
   group_by(Year) %>%
-  summarise(Nitrogen_min = min(Nitrogen_mg.L),
-            Nitrogen_max = max(Nitrogen_mg.L),
-            Nitrogen_mean = mean(Nitrogen_mg.L),
-            Phosphate_min = min(Phosphate_mg.L),
-            Phosphate_max = max(Phosphate_mg.L),
-            Phosphate_mean = mean(Phosphate_mg.L)) %>%
-  filter(Year >= 1972)
+  summarise(Nitrogen_min = min(Nitrogen_mg.L, na.rm = T),
+            Nitrogen_max = max(Nitrogen_mg.L, na.rm = T),
+            Nitrogen_mean = mean(Nitrogen_mg.L, na.rm = T),
+            Phosphate_min = min(Phosphate_mg.L, na.rm = T),
+            Phosphate_max = max(Phosphate_mg.L, na.rm = T),
+            Phosphate_mean = mean(Phosphate_mg.L, na.rm = T)) %>%
+  filter(Year >= 1972) %>%
+  mutate_all(function(x) ifelse(is.infinite(x), NA, x)) 
 
 # Plot results
 ggplot(ShenaWQ_yearly, aes(x = Year)) +
+  geom_vline(xintercept = as.numeric(2004), 
+             linetype = 4, color = "black") +
   geom_line(aes(y = Nitrogen_min), color = "darkgoldenrod2") +
   geom_line(aes(y = Nitrogen_max), color = "coral4") +
   geom_line(aes(y = Nitrogen_mean), color = "chocolate") +
-  labs(y = "Nitrogen (mg/L)")
+  #geom_smooth(data = ShenaWQ_processed, aes(x = Year, y = Nitrogen_mg.L),
+              #method = "lm", size = 1, color = "gray47") +
+  geom_point(aes(y = Nitrogen_min), color = "darkgoldenrod2") +
+  geom_point(aes(y = Nitrogen_max), color = "coral4") +
+  geom_point(aes(y = Nitrogen_mean), color = "chocolate") +
+  labs(y = "Nitrogen (mg/L)") + 
+  annotate(geom = "text",
+           label = "2004",
+           x = as.numeric(2004),
+           y = as.numeric(2.6),
+           angle = 90, 
+           vjust = 2,
+           color = "black")
 # Looks like levels have been lower since dam removal but are possibly 
 # on an increase over the past decade
+```
 
+Check whether average nitrogen levels have changed since dam removal:
+
+``` {r Nitrogen_Analysis4, message=FALSE, warning=FALSE, echo=FALSE}
 # Test whether nitrogen levels were different before versus after dam removal
 t.test_nitrogen <- t.test(ShenaWQ.before$Nitrogen_mg.L, ShenaWQ.after$Nitrogen_mg.L, var.equal = FALSE)
 t.test_nitrogen
-# Nitrogen levels were significantly lower post (p < 0.001)
+# Nitrogen levels were significantly lower post
 # 
-
 ```
 
+Yes, nitrogen levels since dam removal (*M* = 0.92, *SD* = 0.45) have been significantly lower (*t*(550.8) = 4.56, *p* < 0.001) compared with nitrogen levels before dam removal (*M* = 1.09, *SD* = 0.43). 
 
-``` {r Phosphorus_Analysis, message = FALSE, warning = FALSE}
+\newpage
+
+### Phosphate
+
+``` {r Phosphate_Analysis, include=FALSE, message=FALSE, warning=FALSE}
 # Re-examine data, zoomed in
 ggplot(ShenaWQ_processed, aes(x = Date, y = Phosphate_mg.L)) +
   geom_point(aes(color = Month)) +
@@ -492,39 +578,84 @@ ggplot(ShenaWQ_processed, aes(x = Date, y = Phosphate_mg.L)) +
   scale_x_date(limits = c(as.Date("1972-01-01"), 
                           as.Date("2022-02-17"))) +
   labs(y = "Phosphate (mg/L)")
+```
 
+View summary statistics comparing sediment levels before versus after dam removal:
+
+```{r Phosphate.analysis2, warning=FALSE, message=FALSE, echo=FALSE}
+# Create summary table to compare before and after dam removal
+before_summary <- describe(ShenaWQ.before["Phosphate_mg.L"], fast = T)
+after_summary <- describe(ShenaWQ.after["Phosphate_mg.L"], fast = T)
+flow_summary_p <- rbind(before_summary, after_summary)
+# rename columns
+flow_summary_p$vars <- c("Before", "After")
+colnames(flow_summary_p)[1] <- "Timeframe"
+
+# Print summary table
+kable(flow_summary_p, caption = "Summary Statistics for Phosphate")
+```
+
+``` {r Phosphate_Analysis3, warning=FALSE, message=FALSE, echo=FALSE}
 # Plot yearly trends
 ggplot(ShenaWQ_yearly, aes(x = Year)) +
+  geom_point(aes(y = Phosphate_min), color = "darkgoldenrod2") +
+  geom_point(aes(y = Phosphate_max), color = "coral4") +
+  geom_point(aes(y = Phosphate_mean), color = "chocolate") +
   geom_line(aes(y = Phosphate_min), color = "darkgoldenrod2") +
   geom_line(aes(y = Phosphate_max), color = "coral4") +
   geom_line(aes(y = Phosphate_mean), color = "chocolate") +
-  labs(y = "Phosphate (mg/L)")
-# Weirdness going on here; check df
-
-# Test whether nitrogen levels were different before versus after dam removal
-t.test_nitrogen <- t.test(ShenaWQ.before$Nitrogen_mg.L, ShenaWQ.after$Nitrogen_mg.L, var.equal = FALSE)
-t.test_nitrogen
-# Nitrogen levels were significantly lower post (p < 0.001)
-# 
-
+  labs(y = "Phosphate (mg/L)") + 
+  geom_vline(xintercept = as.numeric(2004), 
+             linetype = 4, color = "black") +
+  annotate(geom = "text",
+           label = "2004",
+           x = as.numeric(2004),
+           y = as.numeric(1.8),
+           angle = 90, 
+           vjust = 2,
+           color = "black")
 ```
 
+Test whether phosphate levels were different before versus after dam removal:
+
+```{r Phosphate_Analysis4, warning=FALSE, message=FALSE, echo=FALSE}
+# Test before vs. after phosphate levels
+t.test_phosphate <- t.test(ShenaWQ.before$Phosphate_mg.L, ShenaWQ.after$Phosphate_mg.L, var.equal = FALSE)
+t.test_phosphate
+# Phosphate levels were significantly lower post (p < 0.001)
+```
+
+Phosphate levels have been significantly lower (*t*(309.22) = 19.10, *p* < 0.001) since dam removal (*M* = 0.07, *SD* = 0.08) compared with during the dammed years (*M* = 0.40, *SD* = 0.27).
 
 \newpage
 
-
-
 # Summary and Conclusions
+
+* Flow: fewer extremes since dam removal. Restoring natural hydrology makes rivers more resilient to extreme precipitation and drought.
+
+* Sediment:
+
+* Both Nitrogen and Phosphate levels were significantly lower after dam removal. 
+
+* Not enough data; need more years to confirm these findings
+
+* Would have been interesting to look at the effects on water quality immediately after the dam removal, if we knew the timing and had the data.
+
+* Need to monitor over time for impacts of climate change and other stressors like development.
 
 
 \newpage
 
 # References
 
-* Foley, M. M., J. R. Bellmore, J. E. O'Connor, J. J. Duda, A. E. East, G. E. Grant, C. W. Anderson, J. A. Bountry, M. J. Collins, P. J. Connolly, L. S. Craig, J. E. Evans, S. L. Greene,F. J. Magilligan, C. S. Magirl, J. J. Major, G. R. Pess,T. J. Randle, P. B. Shafroth, C. E. Torgersen, D. Tullos, A. C. Wilcox. 2017. Dam removal: Listening in. Water Resources Research. 53(7):5229-5246. https://doi-org.proxy.lib.duke.edu/10.1002/2017WR020457
+* Foley, M. M., J. R. Bellmore, J. E. O'Connor, J. J. Duda, A. E. East, G. E. Grant, C. W. Anderson, J. A. Bountry, M. J. Collins, P. J. Connolly, L. S. Craig, J. E. Evans, S. L. Greene,F. J. Magilligan, C. S. Magirl, J. J. Major, G. R. Pess,T. J. Randle, P. B. Shafroth, C. E. Torgersen, D. Tullos, A. C. Wilcox. 2017. Dam removal: Listening in. *Water Resources Research. 53*(7):5229-5246. https://doi-org.proxy.lib.duke.edu/10.1002/2017WR020457
+
+* Weaver, A. 2010. Photograph. *U.S. Fish and Wildlife Service Northeast Region.* https://usfwsnortheast.wordpress.com/2016/12/13/virginia-rivers-opened-for-the-first-time-in-100-years/
 
 Map source: http://www.virginiaplaces.org/watersheds/fishpassage.html
 
 Sediment deposits alter downstream tidal communities https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0187742#references
 
 info: https://dwr.virginia.gov/fishing/fish-passage/#orange
+
+

@@ -55,46 +55,6 @@
   pdfcreator={LaTeX via pandoc}}
 \urlstyle{same} % disable monospaced font for URLs
 \usepackage[margin=2.54cm]{geometry}
-\usepackage{color}
-\usepackage{fancyvrb}
-\newcommand{\VerbBar}{|}
-\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
-\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
-% Add ',fontsize=\small' for more characters per line
-\usepackage{framed}
-\definecolor{shadecolor}{RGB}{248,248,248}
-\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
-\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
-\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
-\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
-\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
-\newcommand{\BuiltInTok}[1]{#1}
-\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
-\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
-\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
-\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
-\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
-\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
-\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
-\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
-\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
-\newcommand{\ExtensionTok}[1]{#1}
-\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
-\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
-\newcommand{\ImportTok}[1]{#1}
-\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
-\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
-\newcommand{\NormalTok}[1]{#1}
-\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
-\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
-\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
-\newcommand{\RegionMarkerTok}[1]{#1}
-\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
-\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
-\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
-\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
-\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
-\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
 \usepackage{longtable,booktabs,array}
 \usepackage{calc} % for calculating minipage widths
 % Correct order of tables after \paragraph or \subparagraph
@@ -185,16 +145,9 @@ because of restored ecological processes.
   Question 1: Have discharge levels become more extreme since dam
   removal?
 \item
-  Question 2: Has there been an increase in release of sediment and
-  nutrients over time?
+  Question 2: Has there been a change in release of sediment and
+  nutrients since the dam removal?
 \end{enumerate}
-
-\begin{itemize}
-\tightlist
-\item
-  Have levels steadily increased since dam removal, or did they spike
-  and then stabilize?
-\end{itemize}
 
 \newpage
 
@@ -238,8 +191,8 @@ calculated for each of the four parameters.
 & vars & n & mean & sd & min & max & range & se \\
 \midrule
 \endhead
-Discharge & 1 & 33445 & 1602.856 & 2563.599 & 103 & 114000 & 113897 &
-14.01795 \\
+Discharge & 1 & 33451 & 1602.889 & 2563.372 & 103 & 114000 & 113897 &
+14.01545 \\
 \bottomrule
 \end{longtable}
 
@@ -248,14 +201,14 @@ Discharge & 1 & 33445 & 1602.856 & 2563.599 & 103 & 114000 & 113897 &
 & vars & n & mean & sd & min & max & range & se \\
 \midrule
 \endhead
-Nitrogen\_mg.L & 1 & 584 & 0.9911644 & 0.4509875 & 0.01 & 2.69 & 2.68 &
-0.0186620 \\
+Nitrogen\_mg.L & 1 & 589 & 0.9908829 & 0.4492672 & 0.01 & 2.69 & 2.68 &
+0.0185117 \\
 Temp\_C & 2 & 767 & 14.2938722 & 8.2711759 & -0.10 & 30.50 & 30.60 &
 0.2986549 \\
-Phosphate\_mg.L & 3 & 579 & 0.2251330 & 0.2549664 & 0.00 & 1.93 & 1.93 &
-0.0105960 \\
-Sediments\_mg.L & 4 & 466 & 55.2227468 & 151.3406481 & 0.00 & 2020.00 &
-2020.00 & 7.0107201 \\
+Phosphate\_mg.L & 3 & 582 & 0.2240997 & 0.2547145 & 0.00 & 1.93 & 1.93 &
+0.0105583 \\
+Sediments\_mg.L & 4 & 471 & 54.7594055 & 150.6138832 & 0.00 & 2020.00 &
+2020.00 & 6.9399214 \\
 \bottomrule
 \end{longtable}
 
@@ -264,8 +217,7 @@ Sediments\_mg.L & 4 & 466 & 55.2227468 & 151.3406481 & 0.00 & 2020.00 &
 \hypertarget{exploratory-analysis}{%
 \section{Exploratory Analysis}\label{exploratory-analysis}}
 
-Below are exploratory plots showing each parameter over time, with a
-linear depiction of overall trend.
+Below are exploratory plots showing each parameter over time.
 
 \begin{figure}
 \centering
@@ -302,308 +254,226 @@ linear depiction of overall trend.
 \hypertarget{analysis}{%
 \section{Analysis}\label{analysis}}
 
-\hypertarget{part-1}{%
-\subsection{Part 1}\label{part-1}}
+\hypertarget{question-1-flow}{%
+\subsection{Question 1: Flow}\label{question-1-flow}}
 
 \begin{quote}
 Question \#1: Have discharge extremes increased since the removal of the
 dams? Has average discharge increased since dam removal?
 \end{quote}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# View monthly min and max flow over time}
-\FunctionTok{ggplot}\NormalTok{(ShenaFlow\_monthly, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Date)) }\SpecialCharTok{+}
-  \FunctionTok{scale\_y\_log10}\NormalTok{() }\SpecialCharTok{+}
-  \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ Discharge\_min), }\AttributeTok{color =} \StringTok{"lightskyblue2"}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ Discharge\_max), }\AttributeTok{color =} \StringTok{"steelblue3"}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{geom\_vline}\NormalTok{(}\AttributeTok{xintercept =} \FunctionTok{as.numeric}\NormalTok{(}\FunctionTok{as.Date}\NormalTok{(}\StringTok{"2004{-}01{-}01"}\NormalTok{)), }
-             \AttributeTok{linetype =} \DecValTok{4}\NormalTok{, }\AttributeTok{color =} \StringTok{"tomato4"}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Year"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Discharge (cfs)"}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{annotate}\NormalTok{(}\AttributeTok{geom =} \StringTok{"text"}\NormalTok{,}
-           \AttributeTok{label =} \StringTok{"2004"}\NormalTok{,}
-           \AttributeTok{x =} \FunctionTok{as.Date}\NormalTok{(}\StringTok{"2004{-}01{-}01"}\NormalTok{),}
-           \AttributeTok{y =} \FunctionTok{as.numeric}\NormalTok{(}\DecValTok{100000}\NormalTok{),}
-           \AttributeTok{angle =} \DecValTok{90}\NormalTok{, }
-           \AttributeTok{vjust =} \DecValTok{2}\NormalTok{,}
-           \AttributeTok{color =} \StringTok{"tomato4"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
 \includegraphics{Project_Template_files/figure-latex/Flow.analysis-1.pdf}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Extreme discharge does not appear to have increased. Check yearly to verify}
-
-\CommentTok{\# View yearly min, max, mean flow over time}
-\FunctionTok{ggplot}\NormalTok{(ShenaFlow\_yearly, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Year)) }\SpecialCharTok{+}
-  \FunctionTok{scale\_y\_log10}\NormalTok{() }\SpecialCharTok{+}
-  \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ Discharge\_min), }\AttributeTok{color =} \StringTok{"lightskyblue2"}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ Discharge\_max), }\AttributeTok{color =} \StringTok{"steelblue"}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ Discharge\_mean), }\AttributeTok{color =} \StringTok{"steelblue2"}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{geom\_vline}\NormalTok{(}\AttributeTok{xintercept =} \FunctionTok{as.numeric}\NormalTok{(}\DecValTok{2004}\NormalTok{), }
-             \AttributeTok{linetype =} \DecValTok{4}\NormalTok{, }\AttributeTok{color =} \StringTok{"tomato4"}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{labs}\NormalTok{(}\AttributeTok{y =} \StringTok{"Discharge (cfs)"}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{annotate}\NormalTok{(}\AttributeTok{geom =} \StringTok{"text"}\NormalTok{,}
-           \AttributeTok{label =} \StringTok{"2004"}\NormalTok{,}
-           \AttributeTok{x =} \FunctionTok{as.numeric}\NormalTok{(}\DecValTok{2004}\NormalTok{),}
-           \AttributeTok{y =} \FunctionTok{as.numeric}\NormalTok{(}\DecValTok{100000}\NormalTok{),}
-           \AttributeTok{angle =} \DecValTok{90}\NormalTok{, }
-           \AttributeTok{vjust =} \DecValTok{2}\NormalTok{,}
-           \AttributeTok{color =} \StringTok{"tomato4"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
 \includegraphics{Project_Template_files/figure-latex/Flow.analysis-2.pdf}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Yes, extremes appear smaller since the dam removal}
-
-\CommentTok{\# Create before and after datasets}
-\NormalTok{ShenaFlow.before }\OtherTok{\textless{}{-}}\NormalTok{ ShenaFlow[ShenaFlow}\SpecialCharTok{$}\NormalTok{Date }\SpecialCharTok{\textless{}} \StringTok{"2004{-}01{-}01"}\NormalTok{,]}
-\NormalTok{ShenaFlow.after }\OtherTok{\textless{}{-}}\NormalTok{ ShenaFlow[ShenaFlow}\SpecialCharTok{$}\NormalTok{Date }\SpecialCharTok{\textgreater{}=} \StringTok{"2006{-}01{-}01"}\NormalTok{,]}
-
-\CommentTok{\# Create summary table to compare before and after dam removal}
-\NormalTok{before\_summary }\OtherTok{\textless{}{-}} \FunctionTok{describe}\NormalTok{(ShenaFlow.before[,}\StringTok{"Discharge"}\NormalTok{], }\AttributeTok{fast =}\NormalTok{ T)}
-\NormalTok{after\_summary }\OtherTok{\textless{}{-}} \FunctionTok{describe}\NormalTok{(ShenaFlow.after[,}\StringTok{"Discharge"}\NormalTok{], }\AttributeTok{fast =}\NormalTok{ T)}
-\NormalTok{flow\_summary }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(before\_summary, after\_summary)}
-\CommentTok{\# rename columns}
-\NormalTok{flow\_summary}\SpecialCharTok{$}\NormalTok{vars }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"Before"}\NormalTok{, }\StringTok{"After"}\NormalTok{)}
-\FunctionTok{colnames}\NormalTok{(flow\_summary)[}\DecValTok{1}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Timeframe Relative to Dam Removal"}
-
-\CommentTok{\# Print summary table}
-\FunctionTok{kable}\NormalTok{(flow\_summary, }\AttributeTok{caption =} \StringTok{"Summary Statistics for Discharge"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
+Maximum and minimum flows have not gotten more extreme since dam
+removal.
 
 \begin{longtable}[]{@{}llrrrrrrr@{}}
 \caption{Summary Statistics for Discharge}\tabularnewline
 \toprule
-& Timeframe Relative to Dam Removal & n & mean & sd & min & max & range
-& se \\
+& Timeframe & n & mean & sd & min & max & range & se \\
 \midrule
 \endfirsthead
 \toprule
-& Timeframe Relative to Dam Removal & n & mean & sd & min & max & range
-& se \\
+& Timeframe & n & mean & sd & min & max & range & se \\
 \midrule
 \endhead
 X1 & Before & 26764 & 1594.155 & 2687.319 & 103 & 114000 & 113897 &
 16.42645 \\
-X11 & After & 5950 & 1640.134 & 2010.450 & 226 & 31300 & 31074 &
-26.06362 \\
+X11 & After & 5956 & 1640.279 & 2009.455 & 226 & 31300 & 31074 &
+26.03760 \\
 \bottomrule
 \end{longtable}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# It appears that average flow may be higher since the dam removal}
-\CommentTok{\# Test with a t{-}test}
-\NormalTok{t.test\_before.after }\OtherTok{\textless{}{-}} \FunctionTok{t.test}\NormalTok{(ShenaFlow.before}\SpecialCharTok{$}\NormalTok{Discharge, ShenaFlow.after}\SpecialCharTok{$}\NormalTok{Discharge, }\AttributeTok{var.equal =} \ConstantTok{FALSE}\NormalTok{)}
-\NormalTok{t.test\_before.after}
-\end{Highlighting}
-\end{Shaded}
+Average flow appears to be higher since dam removal. Verify with a
+t-test:
 
 \begin{verbatim}
 ## 
 ##  Welch Two Sample t-test
 ## 
 ## data:  ShenaFlow.before$Discharge and ShenaFlow.after$Discharge
-## t = -1.4925, df = 11220, p-value = 0.1356
+## t = -1.4982, df = 11242, p-value = 0.1341
 ## alternative hypothesis: true difference in means is not equal to 0
 ## 95 percent confidence interval:
-##  -106.36901   14.40966
+##  -106.47011   14.22224
 ## sample estimates:
 ## mean of x mean of y 
-##  1594.155  1640.134
+##  1594.155  1640.279
 \end{verbatim}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Not statistically different}
-\end{Highlighting}
-\end{Shaded}
+Flow levels have not been significantly different before versus after
+the dam removal (p = 0.140, df = 11202).
 
 \includegraphics{Project_Template_files/figure-latex/flow_ts_graph-1.pdf}
 
 \newpage
 
-\hypertarget{part-2}{%
-\subsection{Part 2}\label{part-2}}
+\hypertarget{question-2}{%
+\subsection{Question 2}\label{question-2}}
 
 \begin{quote}
-Question \#2: Has there been an increase in release of sediment and
-nutrients over time? + Have levels increased since dam removal, or did
-they spike and then stabilize?
+Question \#2: Has there been a change in release of sediment and
+nutrients since the dam removal?
 \end{quote}
 
 \hypertarget{sediment}{%
 \subsubsection{Sediment}\label{sediment}}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Re{-}examine data, excluding small number of early points and rescaling}
-\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ ShenaWQ\_processed[ShenaWQ\_processed}\SpecialCharTok{$}\NormalTok{Date }\SpecialCharTok{\textgreater{}} \StringTok{"1995{-}01{-}01"}\NormalTok{,], }
-             \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Date, }\AttributeTok{y =}\NormalTok{ Sediments\_mg.L, }\AttributeTok{color =}\NormalTok{ Month)) }\SpecialCharTok{+}
-  \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+}
-  \FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{method =} \StringTok{"lm"}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{scale\_y\_log10}\NormalTok{() }
-\end{Highlighting}
-\end{Shaded}
+\begin{quote}
+Have sediment levels changed since dam removal?
+\end{quote}
 
-\begin{verbatim}
-## Warning: Transformation introduced infinite values in continuous y-axis
+View summary statistics comparing sediment levels before versus after
+dam removal:
 
-## Warning: Transformation introduced infinite values in continuous y-axis
-\end{verbatim}
+\begin{longtable}[]{@{}llrrrrrrr@{}}
+\caption{Summary Statistics for Sediment}\tabularnewline
+\toprule
+& Timeframe & n & mean & sd & min & max & range & se \\
+\midrule
+\endfirsthead
+\toprule
+& Timeframe & n & mean & sd & min & max & range & se \\
+\midrule
+\endhead
+Sediments\_mg.L & Before & 137 & 83.15474 & 242.94443 & 0.3 & 2020 &
+2019.7 & 20.756144 \\
+Sediments\_mg.L1 & After & 321 & 40.64324 & 79.63389 & 0.0 & 521 & 521.0
+& 4.444731 \\
+\bottomrule
+\end{longtable}
 
-\begin{verbatim}
-## `geom_smooth()` using formula 'y ~ x'
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: Removed 21 rows containing non-finite values (stat_smooth).
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: Removed 18 rows containing missing values (geom_point).
-\end{verbatim}
-
-\includegraphics{Project_Template_files/figure-latex/Sediment_Analysis-1.pdf}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Create before and after WQ datasets}
-\NormalTok{ShenaWQ.before }\OtherTok{\textless{}{-}}\NormalTok{ ShenaWQ\_processed[ShenaWQ\_processed}\SpecialCharTok{$}\NormalTok{Date }\SpecialCharTok{\textless{}} \StringTok{"2004{-}01{-}01"}\NormalTok{,]}
-\NormalTok{ShenaWQ.after }\OtherTok{\textless{}{-}}\NormalTok{ ShenaWQ\_processed[ShenaWQ\_processed}\SpecialCharTok{$}\NormalTok{Date }\SpecialCharTok{\textgreater{}=} \StringTok{"2006{-}01{-}01"}\NormalTok{,]}
-
-\CommentTok{\# Test whether average sediment varied before versus after dam removal}
-\NormalTok{t.test\_sediment }\OtherTok{\textless{}{-}} \FunctionTok{t.test}\NormalTok{(ShenaWQ.before}\SpecialCharTok{$}\NormalTok{Sediments\_mg.L, ShenaWQ.after}\SpecialCharTok{$}\NormalTok{Sediments\_mg.L, }\AttributeTok{var.equal =} \ConstantTok{FALSE}\NormalTok{)}
-\NormalTok{t.test\_sediment}
-\end{Highlighting}
-\end{Shaded}
+Test whether average sediment has been different before versus after dam
+removal:
 
 \begin{verbatim}
 ## 
 ##  Welch Two Sample t-test
 ## 
 ## data:  ShenaWQ.before$Sediments_mg.L and ShenaWQ.after$Sediments_mg.L
-## t = 1.9798, df = 148.99, p-value = 0.04957
+## t = 2.0027, df = 148.63, p-value = 0.04702
 ## alternative hypothesis: true difference in means is not equal to 0
 ## 95 percent confidence interval:
-##   0.08085757 84.02230236
+##   0.5663858 84.4566235
 ## sample estimates:
 ## mean of x mean of y 
-##  83.15474  41.10316
+##  83.15474  40.64324
 \end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Sediment levels were significantly lower post (p = 0.050)}
-\CommentTok{\# Not possible to see whether there was a spike immediately after dam }
-\CommentTok{\# removal because of gap in data}
-\end{Highlighting}
-\end{Shaded}
 
 \newpage
 
 \hypertarget{nitrogen}{%
 \subsubsection{Nitrogen}\label{nitrogen}}
 
-Have ni
+Have nitrogen levels changed since dam removal?
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Re{-}examine data, zoomed in}
-\FunctionTok{ggplot}\NormalTok{(ShenaWQ\_processed, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Date, }\AttributeTok{y =}\NormalTok{ Nitrogen\_mg.L)) }\SpecialCharTok{+}
-  \FunctionTok{geom\_point}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{color =}\NormalTok{ Month)) }\SpecialCharTok{+}
-  \FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{method =} \StringTok{"lm"}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{scale\_x\_date}\NormalTok{(}\AttributeTok{limits =} \FunctionTok{c}\NormalTok{(}\FunctionTok{as.Date}\NormalTok{(}\StringTok{"1972{-}01{-}01"}\NormalTok{), }
-                          \FunctionTok{as.Date}\NormalTok{(}\StringTok{"2022{-}02{-}17"}\NormalTok{)))}
-\end{Highlighting}
-\end{Shaded}
+View summary statistics comparing nitrogen levels before versus after
+dam removal:
 
-\begin{verbatim}
-## `geom_smooth()` using formula 'y ~ x'
-\end{verbatim}
+\begin{longtable}[]{@{}llrrrrrrr@{}}
+\caption{Summary Statistics for Nitrogen}\tabularnewline
+\toprule
+& Timeframe & n & mean & sd & min & max & range & se \\
+\midrule
+\endfirsthead
+\toprule
+& Timeframe & n & mean & sd & min & max & range & se \\
+\midrule
+\endhead
+Nitrogen\_mg.L & Before & 254 & 1.0861811 & 0.4326022 & 0.05 & 2.50 &
+2.45 & 0.0271439 \\
+Nitrogen\_mg.L1 & After & 323 & 0.9178328 & 0.4466726 & 0.01 & 2.69 &
+2.68 & 0.0248535 \\
+\bottomrule
+\end{longtable}
 
-\begin{verbatim}
-## Warning: Removed 190 rows containing non-finite values (stat_smooth).
-\end{verbatim}
+Visualize yearly minimum, mean, and maximum nitrogen levels:
 
-\begin{verbatim}
-## Warning: Removed 190 rows containing missing values (geom_point).
-\end{verbatim}
+\includegraphics{Project_Template_files/figure-latex/Nitrogen_Analysis3-1.pdf}
 
-\includegraphics{Project_Template_files/figure-latex/Nitrogen_Analysis-1.pdf}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Create yearly summary table to visualize differently}
-\NormalTok{ShenaWQ\_yearly }\OtherTok{\textless{}{-}}\NormalTok{ ShenaWQ\_processed }\SpecialCharTok{\%\textgreater{}\%}
-  \FunctionTok{group\_by}\NormalTok{(Year) }\SpecialCharTok{\%\textgreater{}\%}
-  \FunctionTok{summarise}\NormalTok{(}\AttributeTok{Nitrogen\_min =} \FunctionTok{min}\NormalTok{(Nitrogen\_mg.L),}
-            \AttributeTok{Nitrogen\_max =} \FunctionTok{max}\NormalTok{(Nitrogen\_mg.L),}
-            \AttributeTok{Nitrogen\_mean =} \FunctionTok{mean}\NormalTok{(Nitrogen\_mg.L)) }\SpecialCharTok{\%\textgreater{}\%}
-  \FunctionTok{filter}\NormalTok{(Year }\SpecialCharTok{\textgreater{}=} \DecValTok{1972}\NormalTok{)}
-
-\CommentTok{\# Plot results}
-\FunctionTok{ggplot}\NormalTok{(ShenaWQ\_yearly, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Year)) }\SpecialCharTok{+}
-  \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ Nitrogen\_min), }\AttributeTok{color =} \StringTok{"darkgoldenrod2"}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ Nitrogen\_max), }\AttributeTok{color =} \StringTok{"coral4"}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ Nitrogen\_mean), }\AttributeTok{color =} \StringTok{"chocolate"}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{labs}\NormalTok{(}\AttributeTok{y =} \StringTok{"Nitrogen (mg/L)"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## Warning: Removed 6 row(s) containing missing values (geom_path).
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: Removed 6 row(s) containing missing values (geom_path).
-
-## Warning: Removed 6 row(s) containing missing values (geom_path).
-\end{verbatim}
-
-\includegraphics{Project_Template_files/figure-latex/Nitrogen_Analysis-2.pdf}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Test whether average sediment varied before versus after dam removal}
-\NormalTok{t.test\_nitrogen }\OtherTok{\textless{}{-}} \FunctionTok{t.test}\NormalTok{(ShenaWQ.before}\SpecialCharTok{$}\NormalTok{Nitrogen\_mg.L, ShenaWQ.after}\SpecialCharTok{$}\NormalTok{Nitrogen\_mg.L, }\AttributeTok{var.equal =} \ConstantTok{FALSE}\NormalTok{)}
-\NormalTok{t.test\_nitrogen}
-\end{Highlighting}
-\end{Shaded}
+Check whether average nitrogen levels have changed since dam removal:
 
 \begin{verbatim}
 ## 
 ##  Welch Two Sample t-test
 ## 
 ## data:  ShenaWQ.before$Nitrogen_mg.L and ShenaWQ.after$Nitrogen_mg.L
-## t = 4.5603, df = 550.8, p-value = 0.000006299
+## t = 4.5743, df = 550.84, p-value = 0.000005908
 ## alternative hypothesis: true difference in means is not equal to 0
 ## 95 percent confidence interval:
-##  0.0961950 0.2417647
+##  0.09605617 0.24064040
 ## sample estimates:
 ## mean of x mean of y 
-## 1.0861811 0.9172013
+## 1.0861811 0.9178328
 \end{verbatim}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Sediment levels were significantly lower post (p \textless{} 0.001)}
-\CommentTok{\# Not possible to see whether there was a spike immediately after dam }
-\CommentTok{\# removal because of gap in data}
-\end{Highlighting}
-\end{Shaded}
+Yes, nitrogen levels since dam removal (M = 0.92, SD = 0.45) have been
+significantly lower (t(550.8) = 4.56, p \textless{} 0.001) compared with
+nitrogen levels before dam removal (M = 1.09, sd = 0.43).
+
+\newpage
+
+\hypertarget{phosphate}{%
+\subsubsection{Phosphate}\label{phosphate}}
+
+View summary statistics comparing sediment levels before versus after
+dam removal:
+
+\begin{longtable}[]{@{}llrrrrrrr@{}}
+\caption{Summary Statistics for Phosphate}\tabularnewline
+\toprule
+& Timeframe & n & mean & sd & min & max & range & se \\
+\midrule
+\endfirsthead
+\toprule
+& Timeframe & n & mean & sd & min & max & range & se \\
+\midrule
+\endhead
+Phosphate\_mg.L & Before & 272 & 0.3984853 & 0.2743858 & 0.000 & 1.930 &
+1.930 & 0.0166371 \\
+Phosphate\_mg.L1 & After & 297 & 0.0692997 & 0.0755835 & 0.006 & 0.429 &
+0.423 & 0.0043858 \\
+\bottomrule
+\end{longtable}
+
+\includegraphics{Project_Template_files/figure-latex/Phosphate_Analysis3-1.pdf}
+
+Test whether phosphate levels were different before versus after dam
+removal:
+
+\begin{verbatim}
+## 
+##  Welch Two Sample t-test
+## 
+## data:  ShenaWQ.before$Phosphate_mg.L and ShenaWQ.after$Phosphate_mg.L
+## t = 19.133, df = 308.61, p-value < 2.2e-16
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  0.2953308 0.3630405
+## sample estimates:
+##  mean of x  mean of y 
+## 0.39848529 0.06929966
+\end{verbatim}
+
+Phosphate levels have been significantly lower (t(309.22) = 19.10, p
+\textless{} 0.001) since dam removal (M = 0.07, SD = 0.08) compared with
+during the dammed years (M = 0.40, SD = 0.27).
 
 \newpage
 
 \hypertarget{summary-and-conclusions}{%
 \section{Summary and Conclusions}\label{summary-and-conclusions}}
+
+\begin{itemize}
+\item
+  Flow:
+\item
+  Sediment:
+\item
+  Both Nitrogen and Phosphate levels were significantly lower after dam
+  removal.
+\end{itemize}
 
 \newpage
 
