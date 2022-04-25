@@ -12,7 +12,7 @@ The data consists of discharge and water quality data at gage #01631000, availab
 ## Context
 Tens of thousands of dams exist across the United States, constructed for a myriad of reasons including hydroelectric power and providing reservoirs for urban areas. In many cases, resources to not exist to properly maintain these structures as they age, and over time, we have come to understand their catastrophic impacts on river ecosystems. Increasingly, dam removal is considered as an option for dealing with old dams. Dam removal has both instantaneous impacts on flow and water quality and longer term impacts, as natural hydrological, geomorphological, and ecological processes are restored. 
 
-This project aims to explore how the removal of three dams on the South Fork of the Shenandoah River between 2004-2005 impacted discharge, sediment, nitrogen, and phosphate levels.
+This project aims to explore how the removal of three dams on the South Fork of the Shenandoah River between 2004-2005 impacted discharge, sediment, nitrogen, and phosphate levels. T-tests and various visualization techniques are used to assess how these variables differed before versus after the dam removal. 
 
 
 

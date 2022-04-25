@@ -347,7 +347,7 @@ t.test_before.after
 # Not statistically different
 ```
 
-Flow levels have not been significantly different before (*M* = 1594.2, *SD* = 2687.3) versus after (*M* = 1640.3, *SD* = 2009.5) the dam removal (*p* = 0.140, *t*(11202) = -1.48).
+Flow levels have not been significantly different before (*M* = 1594.2, *SD* = 2687.3) versus after (*M* = 1640.3, *SD* = 2009.5) the dam removal (*p* = 0.140, *t*(11202) = -1.48). Although the extreme discharge events appear to have become less extreme since the dam removal, there has not been a statistically significant change in overall discharge levels. This finding suggests that perhaps without dams, the river is more resilient to high precipitation and drought events.
 
 ```{r flow_time_series, include = FALSE}
 # Out of interest:
@@ -470,7 +470,7 @@ t.test_sediment
 
 ```
 
-Yes, sediment levels have been significantly different (*t*(148.63) = 2.00, *p* = 0.047). Specifically, they have been lower post-dam removal (*M*  = 40.64, *SD* = 79.63) compared with pre-dam removal (*M*= 83.15, *SD* = 242.94).
+Yes, sediment levels have been significantly different (*t*(148.63) = 2.00, *p* = 0.047). Specifically, they have been lower post-dam removal (*M*  = 40.64, *SD* = 79.63) compared with pre-dam removal (*M*= 83.15, *SD* = 242.94). This result is surprising because we would expect a large sediment release immediately after dam removal, but the lack of data for the year 2004 may explain this discrepancy. 
 
 \newpage
 
@@ -551,7 +551,7 @@ t.test_nitrogen
 # 
 ```
 
-Yes, nitrogen levels since dam removal (*M* = 0.92, *SD* = 0.45) have been significantly lower (*t*(550.8) = 4.56, *p* < 0.001) compared with nitrogen levels before dam removal (*M* = 1.09, *SD* = 0.43). 
+Yes, nitrogen levels since dam removal (*M* = 0.92, *SD* = 0.45) have been significantly lower (*t*(550.8) = 4.56, *p* < 0.001) compared with nitrogen levels before dam removal (*M* = 1.09, *SD* = 0.43). Nitrogen has a higher potential for denitrification with finer sediments, so perhaps a large influx of sediment immediately after dam removal changed the river floor substantially enough to impact nitrogen levels. On the other hand, a spike occurred in 2021, so nitrogen levels should certainly be followed over a longer time period before drawing definitive conclusions. Nitrogen is highly soluble, so impacts from agriculture and other sources are likely also playing a role. 
 
 \newpage
 
@@ -616,7 +616,7 @@ t.test_phosphate
 # Phosphate levels were significantly lower post (p < 0.001)
 ```
 
-Phosphate levels have been significantly lower (*t*(309.22) = 19.10, *p* < 0.001) since dam removal (*M* = 0.07, *SD* = 0.08) compared with during the dammed years (*M* = 0.40, *SD* = 0.27).
+Phosphate levels have been significantly lower (*t*(309.22) = 19.10, *p* < 0.001) since dam removal (*M* = 0.07, *SD* = 0.08) compared with during the dammed years (*M* = 0.40, *SD* = 0.27). This result is not surprising given our finding with sediment, because phosphate movement through alluvial systems is dependent upon sediment movement (Stanley & Doyle, 2002). However, looking at the graphs, the change in phosphate levels over time are quite striking and began decreasing before dam removal. Changes in regulations of point sources or agricultural practices over time might help explain the dramatic decrease in phosphate levels, though those specific topics were not explored for this project.
 
 \newpage
 
@@ -630,7 +630,7 @@ Because we did not know the exact timing of the three dam removals and did not h
 
 **Sediment.** Sediment levels have been significantly lower since removal. Data are not available for the year 2004, so we do not know the degree of sediment release during and immediately after dam removal. Past research has shown that the high release of sediment from a dam removal can have significant impacts as far as coastal ecosystems (Rubin et al., 2017). In this case at least, it seems that after the initial release of sediment, the restoration of healthy river functions was able to capture and hold a higher level of sediment. 
 
-**Nutrients.** Both nitrogen and phosphate levels have been significantly lower since dam removal. In both cases, the decline in nutrients appears to have begun before dam removal, and we did not assess nutrient levels upstream of the dam over time. Therefore, we cannot say definitively what role the dam itself played. The release and retention of nitrogen and phosphate levels in rivers are at least partially determined by sediment (Stanley & Doyle, 2002). Thus, the decline in nutrients is likely impacted by the decreased amount of sediment release with changing hydrology as healthy river functions were restored.
+**Nutrients.** Both nitrogen and phosphate levels have been significantly lower since dam removal. In both cases, the decline in nutrients appears to have begun before dam removal, and we did not assess nutrient levels upstream of the dam over time. Therefore, we cannot say definitively what role the dam itself played. The release and retention of nitrogen and phosphate levels in rivers are affected by sediment levels (Stanley & Doyle, 2002). Thus, the decline in nutrients is likely impacted by the decreased amount of sediment release with changing hydrology as healthy river functions were restored. A better understanding of regulations and land use in the region is needed to understand all factors that may have influenced these decreasing nutrient levels.
 
 In summary, the removal of these three dams on the South Shenandoah appears to have decreased discharge extremes and levels of sediment and nutrients during the 15 years after the 2-year dam removal period. Viewing the data during the actual period of dam removal would be illuminating. Examining other gages, both upstream of the dams and further downstream, could help us understand changing processes. Furthermore, following these parameters over a longer time period will help solidify our understanding of the dam removal, especially with regards to the impacts of climate change and other stressors. Dam removal holds great promise for restoring healthy fluvial systems. Every river is unique, so research must continue to be able to predict the impacts of dam removal and the optimal ways to do so.
 
