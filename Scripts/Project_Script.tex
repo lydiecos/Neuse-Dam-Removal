@@ -177,8 +177,8 @@ variables, I made a list of the top ten water quality parameters
 according to the number of observations, and then selected three that I
 thought would be particularly interesting and informative in light of
 dam removal. These three were: suspended sediments, nitrogen, and
-phosphate. Temperature is also included in the exploratory analyses. All
-of these variables could be expected to change after dam removal.
+phosphate. All of these variables could be expected to change after dam
+removal.
 
 \hypertarget{data-wrangling}{%
 \subsection{Data Wrangling}\label{data-wrangling}}
@@ -195,14 +195,14 @@ maximum were calculated according to the summary unit.
 The water quality dataset was transformed into a wider dataset with the
 four parameters of interest divided into separate columns, instead of
 being compiled in two columns by characteristic and value. The resulting
-dataframe was also summarized by month, with minimum, mean, and maximum
-calculated for each of the four parameters.
+dataframe was also summarized by month and by year, with minimum, mean,
+and maximum calculated for each of the three parameters.
 
 The exact timing of dam removal is unknown. Given that three dams were
-removed between 2004-2005, subsequent analyses that compare ``before dam
-removal'' versus ``after dam removal'' exclude the years 2004-2005
-entirely. Most of the water quality variables did not include data for
-these years anyway.
+removed between 2004-2005, analyses that compare ``before dam removal''
+versus ``after dam removal'' exclude the years 2004-2005 entirely. Most
+of the water quality variables did not include data for these years
+anyway.
 
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.17}}
@@ -214,6 +214,28 @@ these years anyway.
   >{\raggedleft\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.11}}
   >{\raggedleft\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.11}}
   >{\raggedleft\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.12}}@{}}
+\caption{Summary Statistics for Parameters of Interest}\tabularnewline
+\toprule
+\begin{minipage}[b]{\linewidth}\raggedright
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+vars
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+n
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+mean
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+sd
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+min
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+max
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+range
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+se
+\end{minipage} \\
+\midrule
+\endfirsthead
 \toprule
 \begin{minipage}[b]{\linewidth}\raggedright
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
@@ -235,8 +257,8 @@ se
 \end{minipage} \\
 \midrule
 \endhead
-Discharge & 1 & 33452 & 1602.8971960 & 2563.3337785 & 103.00 & 114000.00
-& 113897.00 & 14.0150327 \\
+Discharge & 1 & 33453 & 1602.9036858 & 2563.2957395 & 103.00 & 114000.00
+& 113897.00 & 14.0146153 \\
 Nitrogen\_mg.L & 1 & 588 & 0.9898299 & 0.4489218 & 0.01 & 2.69 & 2.68 &
 0.0185132 \\
 Phosphate\_mg.L & 2 & 581 & 0.2240637 & 0.2549325 & 0.00 & 1.93 & 1.93 &
@@ -251,7 +273,8 @@ Sediments\_mg.L & 3 & 470 & 54.8588936 & 150.7588733 & 0.00 & 2020.00 &
 \hypertarget{exploratory-analysis}{%
 \section{Exploratory Analysis}\label{exploratory-analysis}}
 
-Below are exploratory plots showing each parameter over time.
+Below are exploratory plots showing each parameter over time, with a
+linear trend line.
 
 \begin{figure}
 \centering
@@ -288,8 +311,8 @@ Below are exploratory plots showing each parameter over time.
 \textbf{Question \#1: Have discharge extremes increased since the
 removal of the dams? Has average discharge changed since dam removal?}
 
-View minimum and maximum flow by month over time. The y-axis is logged
-to more easily view the distribution of values.
+Below, minimum and maximum flow are displayed by month over time. The
+y-axis is logged to more easily view the distribution of values.
 
 \begin{figure}
 \centering
@@ -325,32 +348,32 @@ extreme.
 \endhead
 X1 & Before & 26764 & 1594.155 & 2687.319 & 103 & 114000 & 113897 &
 16.42645 \\
-X11 & After & 5957 & 1640.320 & 2009.289 & 226 & 31300 & 31074 &
-26.03326 \\
+X11 & After & 5958 & 1640.351 & 2009.122 & 226 & 31300 & 31074 &
+26.02891 \\
 \bottomrule
 \end{longtable}
 
 This table confirms that the river has not experienced more extreme
 discharge events since dam removal. Additionally, average flow appears
-to be higher since dam removal. Verify with a t-test:
+to be higher since dam removal. We will verify this with a t-test:
 
 \begin{verbatim}
 ## 
 ##  Welch Two Sample t-test
 ## 
 ## data:  ShenaFlow.before$Discharge and ShenaFlow.after$Discharge
-## t = -1.4997, df = 11246, p-value = 0.1337
+## t = -1.5009, df = 11250, p-value = 0.1334
 ## alternative hypothesis: true difference in means is not equal to 0
 ## 95 percent confidence interval:
-##  -106.50483   14.17313
+##  -106.52777   14.13575
 ## sample estimates:
 ## mean of x mean of y 
-##  1594.155  1640.320
+##  1594.155  1640.351
 \end{verbatim}
 
 Flow levels have not been significantly different before (\emph{M} =
 1594.2, \emph{SD} = 2687.3) versus after (\emph{M} = 1640.3, \emph{SD} =
-2009.5) the dam removal (\emph{p} = 0.140, \emph{t}(11202) = -1.48).
+2009.5) the dam removal (\emph{p} = 0.134, \emph{t}(11246) = -1.50).
 Although the extreme discharge events appear to have become less extreme
 since the dam removal, there has not been a statistically significant
 change in overall discharge levels. This finding suggests that perhaps
@@ -361,7 +384,10 @@ drought events.
 
 We can view overall trends by running a time series that takes
 seasonality into account. In the resulting graph, below, we see general
-trend before the dam removal in red and after the dam removal in purple.
+trend before the dam removal in red and after the dam removal in
+purple.The trend appears to be increasing since dam removal, so
+following the discharge over time is needed to see whether this pattern
+continues.
 
 \begin{figure}
 \centering
@@ -418,7 +444,9 @@ have been substantial development or other disruption that year. Further
 analyses should be considered cautiously because this one outlier year
 may impact results. We should not exclude it from consideration, because
 the prior ten years are not available so it could be indicative of a
-longer trend.
+longer trend. In general, having more data before the dam removal would
+be useful. Only nine years of data are available before the dam removal
+and not all of those are complete.
 
 Test whether average sediment has been significantly different before
 versus after dam removal:
@@ -437,9 +465,9 @@ versus after dam removal:
 ##  83.15474  40.74525
 \end{verbatim}
 
-Yes, sediment levels have been significantly different (\emph{t}(148.63)
-= 2.00, \emph{p} = 0.047). Specifically, they have been lower post-dam
-removal (\emph{M} = 40.64, \emph{SD} = 79.63) compared with pre-dam
+Yes, sediment levels have been significantly different (\emph{t}(148.7)
+= 2.00, \emph{p} = 0.048). Specifically, they have been lower post-dam
+removal (\emph{M} = 40.75, \emph{SD} = 79.63) compared with pre-dam
 removal (\emph{M}= 83.15, \emph{SD} = 242.94). This result is surprising
 because we would expect a large sediment release immediately after dam
 removal, but the lack of data for the year 2004 may explain the
@@ -473,6 +501,9 @@ Nitrogen\_mg.L1 & After & 322 & 0.9156832 & 0.4456914 & 0.01 & 2.69 &
 \bottomrule
 \end{longtable}
 
+Nitrogen levels appear to be lower since dam removal, though the
+difference is not large.
+
 Visualize yearly minimum, mean, and maximum nitrogen levels:
 
 \begin{figure}
@@ -498,7 +529,7 @@ Check whether average nitrogen levels have changed since dam removal:
 \end{verbatim}
 
 Yes, nitrogen levels since dam removal (\emph{M} = 0.92, \emph{SD} =
-0.45) have been significantly lower (\emph{t}(550.8) = 4.56, \emph{p}
+0.45) have been significantly lower (\emph{t}(550.1) = 4.63, \emph{p}
 \textless{} 0.001) compared with nitrogen levels before dam removal
 (\emph{M} = 1.09, \emph{SD} = 0.43). Nitrogen has a higher potential for
 denitrification with finer sediments, so perhaps a large influx of
@@ -535,6 +566,8 @@ Phosphate\_mg.L1 & After & 296 & 0.0687061 & 0.0750149 & 0.006 & 0.429 &
 0.423 & 0.0043602 \\
 \bottomrule
 \end{longtable}
+
+Average levels of phosphate appear to be lower since dam removal.
 
 Visualize yearly minimum, mean, and maximum phosphate levels:
 
@@ -586,7 +619,7 @@ help explain the relative role of the dam removal itself compared with
 changing climate factors, development, and other river impacts.
 
 Because we did not know the exact timing of the three dam removals and
-did not have data during these events for all variable, it is important
+did not have data during these events for all variables, it is important
 to differentiate between the immediate impacts of a dam removal versus
 the longer term recovery of the hydrology and ecosystem. In general, dam
 removal tends to cause a large release of sediment that has built up
@@ -639,6 +672,12 @@ removal holds great promise for restoring healthy fluvial systems. Every
 river is unique, so research must continue to be able to predict the
 impacts of dam removal and the optimal ways to do so.
 
+\begin{figure}
+\centering
+\includegraphics{../Figures-and-Maps/Pano_ShenandoahRiver.jpeg}
+\caption{The South Fork of the Shenandoah}
+\end{figure}
+
 \newpage
 
 \hypertarget{references}{%
@@ -656,6 +695,9 @@ impacts of dam removal and the optimal ways to do so.
 \item
   Musser, K. Map. \emph{Fish Passage and Dam Removal.}
   \url{http://www.virginiaplaces.org/watersheds/fishpassage.html}
+\item
+  Rapp, J. L. 2012. Photograph. \emph{U.S. Geological Survey.}
+  \url{https://www.usgs.gov/media/images/south-fork-shenandoah-river-near-lynnwood}
 \item
   Rubin, S. P., Miller, I. M., Foley, M. M., Berry, H. D., Duda, J. J.,
   Hudson, B., et al.~(2017). Increased sediment load during a

@@ -72,7 +72,7 @@ Changes in water quality are also an area of interest. Large amounts of sediment
 
 The dataset consists of discharge and water quality data from stream gage #01631000, which is located on the South Fork of the Shenandoah River downstream from the three dam removal sites. These data were obtained from USGS StreamStats: https://streamstats.usgs.gov/ss/. 
 
-The dataset includes 183 parameters, but these parameters vary widely in terms of how many datapoints were collected. To choose water quality variables, I made a list of the top ten water quality parameters according to the number of observations, and then selected three that I thought would be particularly interesting and informative in light of dam removal. These three were: suspended sediments, nitrogen, and phosphate. Temperature is also included in the exploratory analyses. All of these variables could be expected to change after dam removal.  
+The dataset includes 183 parameters, but these parameters vary widely in terms of how many datapoints were collected. To choose water quality variables, I made a list of the top ten water quality parameters according to the number of observations, and then selected three that I thought would be particularly interesting and informative in light of dam removal. These three were: suspended sediments, nitrogen, and phosphate. All of these variables could be expected to change after dam removal.  
 
 ``` {r load_data, include = FALSE}
 # Load datasets
@@ -114,9 +114,9 @@ The data were downloaded as two separate datasets: discharge ('ShenaFlow') and w
 
 The discharge dataset was summarized into two dataframes, one by month and the other by year. In both cases, discharge minimum, mean, and maximum were calculated according to the summary unit. 
 
-The water quality dataset was transformed into a wider dataset with the four parameters of interest divided into separate columns, instead of being compiled in two columns by characteristic and value. The resulting dataframe was also summarized by month, with minimum, mean, and maximum calculated for each of the four parameters. 
+The water quality dataset was transformed into a wider dataset with the four parameters of interest divided into separate columns, instead of being compiled in two columns by characteristic and value. The resulting dataframe was also summarized by month and by year, with minimum, mean, and maximum calculated for each of the three parameters. 
 
-The exact timing of dam removal is unknown. Given that three dams were removed between 2004-2005, subsequent analyses that compare "before dam removal" versus "after dam removal" exclude the years 2004-2005 entirely. Most of the water quality variables did not include data for these years anyway.
+The exact timing of dam removal is unknown. Given that three dams were removed between 2004-2005, analyses that compare "before dam removal" versus "after dam removal" exclude the years 2004-2005 entirely. Most of the water quality variables did not include data for these years anyway.
 
 ```{r wrangling_flow, include = FALSE, warning=FALSE, message=FALSE}
 # Change column names
@@ -237,21 +237,21 @@ ShenaWQ_processed %>%
   select(Nitrogen_mg.L, Phosphate_mg.L, Sediments_mg.L) %>%
   describe(., fast = T) %>%
   rbind(flow_summary_all, .) %>%
-  kable()
+  kable(caption = "Summary Statistics for Parameters of Interest")
 ```
 
 \newpage
 
 # Exploratory Analysis 
 
-Below are exploratory plots showing each parameter over time.
+Below are exploratory plots showing each parameter over time, with a linear trend line.
 
 ```{r exploration_plot1, echo=FALSE, warning=FALSE, message=FALSE, fig.cap = "Discharge over time"}
 # View flow over time
 ggplot(ShenaFlow, aes(x = Date, y = Discharge)) +
   geom_line() +
   scale_y_log10() +
-  labs(y = "Discharge, logged (cfs)") +
+  labs(y = "Discharge (cfs, logged)") +
   geom_vline(xintercept = as.Date("2004", format="%Y"), 
              linetype = 4, color = "tomato4") +
   annotate(geom = "text",
@@ -320,92 +320,8 @@ ggplot(ShenaWQ_processed, aes(x = Date, y = Phosphate_mg.L)) +
   geom_smooth(method = "lm")
 ```
 
-\newpage
-
-# Analysis
-
-## Part 1: Flow
-
-**Question #1: Have discharge extremes increased since the removal of the dams? Has average discharge changed since dam removal?**
-
-View minimum and maximum flow by month over time. The y-axis is logged to more easily view the distribution of values.
-
-```{r Flow.analysis, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Monthly Minimum and Maximum Discharge Over Time"}
-# View monthly min and max flow over time
-ggplot(ShenaFlow_monthly, aes(x = Date)) +
-  scale_y_log10() +
-  geom_line(aes(y = Discharge_min), color = "mediumpurple") +
-  geom_line(aes(y = Discharge_max), color = "lightskyblue2", alpha = 0.8) +
-  geom_vline(xintercept = as.numeric(as.Date("2004-01-01")), 
-             linetype = 4, color = "gray47") +
-  labs(x = "Year", y = "Discharge (cfs, logged)") +
-  annotate(geom = "text",
-           label = "2004",
-           x = as.Date("2004-01-01"),
-           y = as.numeric(100000),
-           angle = 90, 
-           vjust = 2,
-           color = "gray47")
-# Extreme discharge does not appear to have increased. Check yearly to verify
-```
-
-To better visualize extremes, we'll now look at minimum and maximum flow along with average flow by year. Again, the y-axis is logged to aid with visualization. 
-
-```{r Flow.analysis1, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Yearly Minimum, Maximum, and Average Discharge Over Time"}
-# View yearly min, max, mean flow over time
-ggplot(ShenaFlow_yearly, aes(x = Year)) +
-  scale_y_log10() +
-  geom_line(aes(y = Discharge_min), color = "lightskyblue2") +
-  geom_line(aes(y = Discharge_max), color = "steelblue") +
-  geom_line(aes(y = Discharge_mean), color = "steelblue2") +
-  geom_vline(xintercept = as.numeric(2004), 
-             linetype = 4, color = "tomato4") +
-  labs(y = "Discharge (cfs)") +
-  annotate(geom = "text",
-           label = "2004",
-           x = as.numeric(2004),
-           y = as.numeric(100000),
-           angle = 90, 
-           vjust = 2,
-           color = "tomato4")
-# Yes, extremes appear smaller since the dam removal
-```
-
-These two graphs both suggest that maximum and minimum flows have not gotten more extreme since dam removal; in fact, they appear to be less extreme.
-
-\newpage
-
-```{r Flow.analysis2, warning=FALSE, message=FALSE, echo=FALSE}
-# Create before and after datasets
-ShenaFlow.before <- ShenaFlow[ShenaFlow$Date < "2004-01-01",]
-ShenaFlow.after <- ShenaFlow[ShenaFlow$Date >= "2006-01-01",]
-
-# Create summary table to compare before and after dam removal
-before_summary <- describe(ShenaFlow.before[,"Discharge"], fast = T)
-after_summary <- describe(ShenaFlow.after[,"Discharge"], fast = T)
-flow_summary <- rbind(before_summary, after_summary)
-# rename columns
-flow_summary$vars <- c("Before", "After")
-colnames(flow_summary)[1] <- "Timeframe"
-
-# Print summary table
-kable(flow_summary, caption = "Summary Statistics for Discharge")
-```
-
-This table confirms that the river has not experienced more extreme discharge events since dam removal. Additionally, average flow appears to be higher since dam removal. Verify with a t-test:
-
-```{r Flow.analysis3, warning=FALSE, message=FALSE, echo=FALSE}
-# It appears that average flow may be higher since the dam removal
-# Test with a t-test
-t.test_before.after <- t.test(ShenaFlow.before$Discharge, ShenaFlow.after$Discharge, var.equal = FALSE)
-t.test_before.after
-# Not statistically different
-```
-
-Flow levels have not been significantly different before (*M* = 1594.2, *SD* = 2687.3) versus after (*M* = 1640.3, *SD* = 2009.5) the dam removal (*p* = 0.140, *t*(11202) = -1.48). Although the extreme discharge events appear to have become less extreme since the dam removal, there has not been a statistically significant change in overall discharge levels. This finding suggests that perhaps without dams, the river is more resilient to high precipitation and drought events.
-
 ```{r flow_time_series, include = FALSE}
-# Out of interest:
+# Out of interest, run time series on flow, which is the most complete dataset:
 # FLOW TIME SERIES
 
 Flow_ts <- ts(ShenaFlow[[4]], frequency = 365)
@@ -425,6 +341,11 @@ Flow_Components <- mutate(Flow_Components,
 
 # TIME SERIES BREAK DOWN BY BEFORE/AFTER DAM REMOVAL
 # Flow Time Series: Before the Dam 
+
+# Create before and after datasets
+ShenaFlow.before <- ShenaFlow[ShenaFlow$Date < "2004-01-01",]
+ShenaFlow.after <- ShenaFlow[ShenaFlow$Date >= "2006-01-01",]
+
 
 Flow_ts.before <- ts(ShenaFlow.before[[4]], frequency = 365)
 
@@ -460,7 +381,88 @@ Flow_Components.after <- mutate(Flow_Components.after,
 
 \newpage
 
-We can view overall trends by running a time series that takes seasonality into account. In the resulting graph, below, we see general trend before the dam removal in red and after the dam removal in purple. 
+# Analysis
+
+## Part 1: Flow
+
+**Question #1: Have discharge extremes increased since the removal of the dams? Has average discharge changed since dam removal?**
+
+Below, minimum and maximum flow are displayed by month over time. The y-axis is logged to more easily view the distribution of values.
+
+```{r Flow.analysis, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Monthly Minimum and Maximum Discharge Over Time"}
+# View monthly min and max flow over time
+ggplot(ShenaFlow_monthly, aes(x = Date)) +
+  scale_y_log10() +
+  geom_line(aes(y = Discharge_min), color = "mediumpurple") +
+  geom_line(aes(y = Discharge_max), color = "lightskyblue3", alpha = 0.8) +
+  geom_vline(xintercept = as.numeric(as.Date("2004-01-01")), 
+             linetype = 4, color = "gray47") +
+  labs(x = "Year", y = "Discharge (cfs, logged)") +
+  annotate(geom = "text",
+           label = "2004",
+           x = as.Date("2004-01-01"),
+           y = as.numeric(100000),
+           angle = 90, 
+           vjust = 2,
+           color = "gray47")
+# Extreme discharge does not appear to have increased. Check yearly to verify
+```
+
+To better visualize extremes, we'll now look at minimum and maximum flow along with average flow by year. Again, the y-axis is logged to aid with visualization. 
+
+```{r Flow.analysis1, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Yearly Minimum, Maximum, and Average Discharge Over Time"}
+# View yearly min, max, mean flow over time
+ggplot(ShenaFlow_yearly, aes(x = Year)) +
+  scale_y_log10() +
+  geom_line(aes(y = Discharge_min), color = "lightskyblue2") +
+  geom_line(aes(y = Discharge_max), color = "steelblue") +
+  geom_line(aes(y = Discharge_mean), color = "steelblue2") +
+  geom_vline(xintercept = as.numeric(2004), 
+             linetype = 4, color = "tomato4") +
+  labs(y = "Discharge (cfs, logged)") +
+  annotate(geom = "text",
+           label = "2004",
+           x = as.numeric(2004),
+           y = as.numeric(100000),
+           angle = 90, 
+           vjust = 2,
+           color = "tomato4")
+# Yes, extremes appear smaller since the dam removal
+```
+
+These two graphs both suggest that maximum and minimum flows have not gotten more extreme since dam removal; in fact, they appear to be less extreme.
+
+\newpage
+
+```{r Flow.analysis2, warning=FALSE, message=FALSE, echo=FALSE}
+# Create summary table to compare before and after dam removal
+before_summary <- describe(ShenaFlow.before[,"Discharge"], fast = T)
+after_summary <- describe(ShenaFlow.after[,"Discharge"], fast = T)
+flow_summary <- rbind(before_summary, after_summary)
+# rename columns
+flow_summary$vars <- c("Before", "After")
+colnames(flow_summary)[1] <- "Timeframe"
+
+# Print summary table
+kable(flow_summary, caption = "Summary Statistics for Discharge")
+```
+
+This table confirms that the river has not experienced more extreme discharge events since dam removal. Additionally, average flow appears to be higher since dam removal. We will verify this with a t-test:
+
+```{r Flow.analysis3, warning=FALSE, message=FALSE, echo=FALSE}
+# It appears that average flow may be higher since the dam removal
+# Test with a t-test
+t.test_before.after <- t.test(ShenaFlow.before$Discharge, ShenaFlow.after$Discharge, var.equal = FALSE)
+t.test_before.after
+# Not statistically different
+```
+
+Flow levels have not been significantly different before (*M* = 1594.2, *SD* = 2687.3) versus after (*M* = 1640.3, *SD* = 2009.5) the dam removal (*p* = 0.134, *t*(11246) = -1.50). Although the extreme discharge events appear to have become less extreme since the dam removal, there has not been a statistically significant change in overall discharge levels. This finding suggests that perhaps without dams, the river is more resilient to high precipitation and drought events.
+
+
+\newpage
+
+We can view overall trends by running a time series that takes seasonality into account. In the resulting graph, below, we see general trend before the dam removal in red and after the dam removal in purple.The trend appears to be increasing since dam removal, so following the discharge over time is needed to see whether this pattern continues. 
 
 ```{r flow_ts_graph, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Flow Trends Over Time"}
 # Graph before vs after trends
@@ -526,7 +528,7 @@ ggplot(ShenaWQ_yearly, aes(x = Year)) +
   geom_point(aes(y = Sediment_min), color = "darkgoldenrod2") +
   geom_point(aes(y = Sediment_max), color = "coral4") +
   geom_point(aes(y = Sediment_mean), color = "chocolate") +
-  labs(y = "Sediment Load, logged (mg/L)") + 
+  labs(y = "Sediment Load (mg/L, logged)") + 
   annotate(geom = "text",
            label = "2004",
            x = as.numeric(2004),
@@ -539,7 +541,7 @@ ggplot(ShenaWQ_yearly, aes(x = Year)) +
 # on an increase over the past decade
 ```
 
-Keeping in mind that these values are logged, sediment loads were substantially higher in 1996 than any other year measured. There may have been substantial development or other disruption that year. Further analyses should be considered cautiously because this one outlier year may impact results. We should not exclude it from consideration, because the prior ten years are not available so it could be indicative of a longer trend.
+Keeping in mind that these values are logged, sediment loads were substantially higher in 1996 than any other year measured. There may have been substantial development or other disruption that year. Further analyses should be considered cautiously because this one outlier year may impact results. We should not exclude it from consideration, because the prior ten years are not available so it could be indicative of a longer trend. In general, having more data before the dam removal would be useful. Only nine years of data are available before the dam removal and not all of those are complete.
 
 Test whether average sediment has been significantly different before versus after dam removal:
 
@@ -553,7 +555,7 @@ t.test_sediment
 
 ```
 
-Yes, sediment levels have been significantly different (*t*(148.63) = 2.00, *p* = 0.047). Specifically, they have been lower post-dam removal (*M*  = 40.64, *SD* = 79.63) compared with pre-dam removal (*M*= 83.15, *SD* = 242.94). This result is surprising because we would expect a large sediment release immediately after dam removal, but the lack of data for the year 2004 may explain the discrepancy. The high sediment loads of 1996 may also have a large impact on this finding.
+Yes, sediment levels have been significantly different (*t*(148.7) = 2.00, *p* = 0.048). Specifically, they have been lower post-dam removal (*M*  = 40.75, *SD* = 79.63) compared with pre-dam removal (*M*= 83.15, *SD* = 242.94). This result is surprising because we would expect a large sediment release immediately after dam removal, but the lack of data for the year 2004 may explain the discrepancy. The high sediment loads of 1996 may also have a large impact on this finding.
 
 \newpage
 
@@ -584,6 +586,8 @@ colnames(flow_summary_n)[1] <- "Timeframe"
 # Print summary table
 kable(flow_summary_n, caption = "Summary Statistics for Nitrogen")
 ```
+
+Nitrogen levels appear to be lower since dam removal, though the difference is not large.
 
 Visualize yearly minimum, mean, and maximum nitrogen levels:
 
@@ -622,7 +626,7 @@ t.test_nitrogen
 # 
 ```
 
-Yes, nitrogen levels since dam removal (*M* = 0.92, *SD* = 0.45) have been significantly lower (*t*(550.8) = 4.56, *p* < 0.001) compared with nitrogen levels before dam removal (*M* = 1.09, *SD* = 0.43). Nitrogen has a higher potential for denitrification with finer sediments, so perhaps a large influx of sediment immediately after dam removal changed the river floor substantially enough to impact nitrogen levels. On the other hand, a spike occurred in 2021, so nitrogen levels should certainly be followed over a longer time period before drawing definitive conclusions. Nitrogen is highly soluble, so impacts from agriculture and other sources are likely also playing a role. 
+Yes, nitrogen levels since dam removal (*M* = 0.92, *SD* = 0.45) have been significantly lower (*t*(550.1) = 4.63, *p* < 0.001) compared with nitrogen levels before dam removal (*M* = 1.09, *SD* = 0.43). Nitrogen has a higher potential for denitrification with finer sediments, so perhaps a large influx of sediment immediately after dam removal changed the river floor substantially enough to impact nitrogen levels. On the other hand, a spike occurred in 2021, so nitrogen levels should certainly be followed over a longer time period before drawing definitive conclusions. Nitrogen is highly soluble, so impacts from agriculture and other sources are likely also playing a role. 
 
 \newpage
 
@@ -654,6 +658,8 @@ colnames(flow_summary_p)[1] <- "Timeframe"
 # Print summary table
 kable(flow_summary_p, caption = "Summary Statistics for Phosphate")
 ```
+
+Average levels of phosphate appear to be lower since dam removal.
 
 Visualize yearly minimum, mean, and maximum phosphate levels:
 
@@ -695,7 +701,7 @@ Phosphate levels have been significantly lower (*t*(309.22) = 19.10, *p* < 0.001
 
 These findings suggest that the dam removals on the South Fork of the Shenandoah did impact the flow, sediments, and nutrients of the river downstream. Following these variables over a longer time window would help explain the relative role of the dam removal itself compared with changing climate factors, development, and other river impacts. 
 
-Because we did not know the exact timing of the three dam removals and did not have data during these events for all variable, it is important to differentiate between the immediate impacts of a dam removal versus the longer term recovery of the hydrology and ecosystem. In general, dam removal tends to cause a large release of sediment that has built up behind the dam over the years, which may bring high levels of nutrients as well (Stanley & Doyle, 2002).
+Because we did not know the exact timing of the three dam removals and did not have data during these events for all variables, it is important to differentiate between the immediate impacts of a dam removal versus the longer term recovery of the hydrology and ecosystem. In general, dam removal tends to cause a large release of sediment that has built up behind the dam over the years, which may bring high levels of nutrients as well (Stanley & Doyle, 2002).
 
 **Flow.** Average discharge levels have not changed since dam removal, but the extremes of discharge have been smaller, both less extreme high flow events and less extreme low flow events. This finding is interesting because dams allow control of water, which could hedge against both high and low flow events. On the other hand, restoring natural hydrology makes rivers more resilient to extreme precipitation and drought. The latter seems to be more important in this case, though we cannot eliminate the possibility that perhaps there have not been as extreme precipitation events nor droughts in the past 15 years compared with prior decades. Further monitoring is needed.
 
@@ -705,6 +711,8 @@ Because we did not know the exact timing of the three dam removals and did not h
 
 In summary, the removal of these three dams on the South Shenandoah appears to have decreased discharge extremes and levels of sediment and nutrients during the 15 years after the 2-year dam removal period. Viewing the data during the actual period of dam removal would be illuminating. Examining other gages, both upstream of the dams and further downstream, could help us understand changing processes. Furthermore, following these parameters over a longer time period will help solidify our understanding of the dam removal, especially with regards to the impacts of climate change and other stressors. Dam removal holds great promise for restoring healthy fluvial systems. Every river is unique, so research must continue to be able to predict the impacts of dam removal and the optimal ways to do so.
 
+![The South Fork of the Shenandoah](../Figures-and-Maps/Pano_ShenandoahRiver.jpeg)
+
 
 \newpage
 
@@ -713,6 +721,8 @@ In summary, the removal of these three dams on the South Shenandoah appears to h
 * Foley, M. M., J. R. Bellmore, J. E. O'Connor, J. J. Duda, A. E. East, G. E. Grant, C. W. Anderson, J. A. Bountry, M. J. Collins, P. J. Connolly, L. S. Craig, J. E. Evans, S. L. Greene,F. J. Magilligan, C. S. Magirl, J. J. Major, G. R. Pess,T. J. Randle, P. B. Shafroth, C. E. Torgersen, D. Tullos, A. C. Wilcox. 2017. Dam removal: Listening in. *Water Resources Research. 53*(7):5229-5246. https://doi-org.proxy.lib.duke.edu/10.1002/2017WR020457
 
 * Musser, K. Map. *Fish Passage and Dam Removal.* http://www.virginiaplaces.org/watersheds/fishpassage.html
+
+* Rapp, J. L. 2012. Photograph. *U.S. Geological Survey.* https://www.usgs.gov/media/images/south-fork-shenandoah-river-near-lynnwood
 
 * Rubin, S. P., Miller, I. M., Foley, M. M., Berry, H. D., Duda, J. J., Hudson, B., et al. (2017). Increased sediment load during a large-scale dam removal changes nearshore subtidal communities. *PLoS ONE 12*(12): e0187742. https://doi.org/10.1371/journal.pone.0187742
 
