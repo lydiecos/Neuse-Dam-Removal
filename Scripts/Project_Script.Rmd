@@ -207,6 +207,25 @@ dim(ShenaWQ_monthly)
 summary(ShenaWQ_monthly)
 str(ShenaWQ_monthly)
 
+# Create yearly summary table
+ShenaWQ_yearly <- ShenaWQ_processed %>%
+  group_by(Year) %>%
+  summarise(Sediment_min = min(Sediments_mg.L, na.rm = T),
+            Sediment_max = max(Sediments_mg.L, na.rm = T),
+            Sediment_mean = mean(Sediments_mg.L, na.rm = T),
+            Nitrogen_min = min(Nitrogen_mg.L, na.rm = T),
+            Nitrogen_max = max(Nitrogen_mg.L, na.rm = T),
+            Nitrogen_mean = mean(Nitrogen_mg.L, na.rm = T),
+            Phosphate_min = min(Phosphate_mg.L, na.rm = T),
+            Phosphate_max = max(Phosphate_mg.L, na.rm = T),
+            Phosphate_mean = mean(Phosphate_mg.L, na.rm = T)) %>%
+  filter(Year >= 1972) %>%
+  mutate_all(function(x) ifelse(is.infinite(x), NA, x)) 
+
+# Check dimensions and summary of dataset
+dim(ShenaWQ_yearly)
+summary(ShenaWQ_yearly)
+str(ShenaWQ_yearly)
 ```
 
 ```{r tables_of_results, echo = FALSE, warning=FALSE, message=FALSE}
@@ -231,19 +250,37 @@ Below are exploratory plots showing each parameter over time.
 # View flow over time
 ggplot(ShenaFlow, aes(x = Date, y = Discharge)) +
   geom_line() +
-  geom_smooth(method = "lm") +
   scale_y_log10() +
-  labs(y = "Discharge, logged (cfs)")
+  labs(y = "Discharge, logged (cfs)") +
+  geom_vline(xintercept = as.Date("2004", format="%Y"), 
+             linetype = 4, color = "tomato4") +
+  annotate(geom = "text",
+           label = "2004",
+           x = as.Date("2004", format="%Y"),
+           y = as.numeric(100000),
+           angle = 90, 
+           vjust = 2,
+           color = "tomato4") +
+  geom_smooth(method = "lm")
 ```
 
 ```{r exploration_plot2, echo=FALSE, warning=FALSE, message=FALSE, fig.cap = "Sediment over time"}
 # View Sediments over time
 # Predict increased sediment load right after dam removal, but eventual decline
 ggplot(ShenaWQ_processed, aes(x = Date, y = Sediments_mg.L)) +
-  geom_point(aes(color = Month)) +
+  geom_point() +
   geom_smooth(method = "lm") +
-  labs(y = "Suspended Sediment Concentration, \nlogged (mg/L)") +
-  scale_y_log10()
+  labs(y = "Suspended Sediment Concentration\n (mg/L, logged)") +
+  scale_y_log10() +
+  geom_vline(xintercept = as.Date("2004", format="%Y"), 
+             linetype = 4, color = "tomato4") +
+  annotate(geom = "text",
+           label = "2004",
+           x = as.Date("2004", format="%Y"),
+           y = as.numeric(1500),
+           angle = 90, 
+           vjust = 2,
+           color = "tomato4")
 
 ```
 
@@ -252,8 +289,17 @@ ggplot(ShenaWQ_processed, aes(x = Date, y = Sediments_mg.L)) +
 # Elevated levels expected after dam removal but eventual decline
 ggplot(ShenaWQ_processed, aes(x = Date, y = Nitrogen_mg.L)) +
   geom_point(aes(color = Month)) +
-  geom_smooth(method = "lm") +
-  labs(y = "Nitrogen (mg/L)")
+  labs(y = "Nitrogen (mg/L)") +
+  geom_vline(xintercept = as.Date("2004", format="%Y"), 
+             linetype = 4, color = "tomato4") +
+  annotate(geom = "text",
+           label = "2004",
+           x = as.Date("2004", format="%Y"),
+           y = as.numeric(2.6),
+           angle = 90, 
+           vjust = 2,
+           color = "tomato4") +
+  geom_smooth(method = "lm")
 ```
 
 ```{r exploration_plot4, echo=FALSE, warning=FALSE, message=FALSE, fig.cap = "Phosphate over time"}
@@ -261,8 +307,17 @@ ggplot(ShenaWQ_processed, aes(x = Date, y = Nitrogen_mg.L)) +
 # Elevated levels expected after dam removal but eventual decline
 ggplot(ShenaWQ_processed, aes(x = Date, y = Phosphate_mg.L)) +
   geom_point(aes(color = Month)) +
-  geom_smooth(method = "lm") +
-  labs(y = "Phosphate (mg/L)")
+  labs(y = "Phosphate (mg/L)") +
+  geom_vline(xintercept = as.Date("2004", format="%Y"), 
+             linetype = 4, color = "tomato4") +
+  annotate(geom = "text",
+           label = "2004",
+           x = as.Date("2004", format="%Y"),
+           y = as.numeric(1.8),
+           angle = 90, 
+           vjust = 2,
+           color = "tomato4") +
+  geom_smooth(method = "lm")
 ```
 
 \newpage
@@ -458,9 +513,37 @@ kable(flow_summary_sed, caption = "Summary Statistics for Sediment")
 
 Sediment levels appear to be lower on average since dam removal.
 
+Visualize yearly minimum, mean, and maximum sediment levels:
+
+``` {r Sediment_Analysis3, message=FALSE, warning=FALSE, echo=FALSE, fig.cap="Yearly Minimum, Maximum, and Average Sediment Levels Over Time"}
+# Plot yearly stats
+ggplot(ShenaWQ_yearly, aes(x = Year)) +
+  geom_vline(xintercept = as.numeric(2004), 
+             linetype = 4, color = "black") +
+  geom_line(aes(y = Sediment_min), color = "darkgoldenrod2") +
+  geom_line(aes(y = Sediment_max), color = "coral4") +
+  geom_line(aes(y = Sediment_mean), color = "chocolate") +
+  geom_point(aes(y = Sediment_min), color = "darkgoldenrod2") +
+  geom_point(aes(y = Sediment_max), color = "coral4") +
+  geom_point(aes(y = Sediment_mean), color = "chocolate") +
+  labs(y = "Sediment Load, logged (mg/L)") + 
+  annotate(geom = "text",
+           label = "2004",
+           x = as.numeric(2004),
+           y = as.numeric(1500),
+           angle = 90, 
+           vjust = 2,
+           color = "black") +
+  scale_y_log10()
+# Looks like levels have been lower since dam removal but are possibly 
+# on an increase over the past decade
+```
+
+Keeping in mind that these values are logged, sediment loads were substantially higher in 1996 than any other year measured. There may have been substantial development or other disruption that year. Further analyses should be considered cautiously because this one outlier year may impact results. We should not exclude it from consideration, because the prior ten years are not available so it could be indicative of a longer trend.
+
 Test whether average sediment has been significantly different before versus after dam removal:
 
-```{r Sediment.analysis3, warning=FALSE, message=FALSE, echo=FALSE}
+```{r Sediment.analysis4, warning=FALSE, message=FALSE, echo=FALSE}
 # Test whether average sediment varied before versus after dam removal
 t.test_sediment <- t.test(ShenaWQ.before$Sediments_mg.L, ShenaWQ.after$Sediments_mg.L, var.equal = FALSE)
 t.test_sediment
@@ -470,7 +553,7 @@ t.test_sediment
 
 ```
 
-Yes, sediment levels have been significantly different (*t*(148.63) = 2.00, *p* = 0.047). Specifically, they have been lower post-dam removal (*M*  = 40.64, *SD* = 79.63) compared with pre-dam removal (*M*= 83.15, *SD* = 242.94). This result is surprising because we would expect a large sediment release immediately after dam removal, but the lack of data for the year 2004 may explain this discrepancy. 
+Yes, sediment levels have been significantly different (*t*(148.63) = 2.00, *p* = 0.047). Specifically, they have been lower post-dam removal (*M*  = 40.64, *SD* = 79.63) compared with pre-dam removal (*M*= 83.15, *SD* = 242.94). This result is surprising because we would expect a large sediment release immediately after dam removal, but the lack of data for the year 2004 may explain the discrepancy. The high sediment loads of 1996 may also have a large impact on this finding.
 
 \newpage
 
@@ -505,19 +588,7 @@ kable(flow_summary_n, caption = "Summary Statistics for Nitrogen")
 Visualize yearly minimum, mean, and maximum nitrogen levels:
 
 ``` {r Nitrogen_Analysis3, message=FALSE, warning=FALSE, echo=FALSE, fig.cap="Yearly Minimum, Maximum, and Average Nitrogen Levels Over Time"}
-# Create yearly summary table to visualize differently
-ShenaWQ_yearly <- ShenaWQ_processed %>%
-  group_by(Year) %>%
-  summarise(Nitrogen_min = min(Nitrogen_mg.L, na.rm = T),
-            Nitrogen_max = max(Nitrogen_mg.L, na.rm = T),
-            Nitrogen_mean = mean(Nitrogen_mg.L, na.rm = T),
-            Phosphate_min = min(Phosphate_mg.L, na.rm = T),
-            Phosphate_max = max(Phosphate_mg.L, na.rm = T),
-            Phosphate_mean = mean(Phosphate_mg.L, na.rm = T)) %>%
-  filter(Year >= 1972) %>%
-  mutate_all(function(x) ifelse(is.infinite(x), NA, x)) 
-
-# Plot results
+# Plot yearly stats
 ggplot(ShenaWQ_yearly, aes(x = Year)) +
   geom_vline(xintercept = as.numeric(2004), 
              linetype = 4, color = "black") +

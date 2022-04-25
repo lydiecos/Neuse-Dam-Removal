@@ -91,9 +91,9 @@
 
 \begin{figure}
 \centering
-\includegraphics{Images/riverton-dam-removal.jpeg}
-\caption{``Dam removal in progress on the North Fork of the Shenandoah
-River''}
+\includegraphics{../Figures-and-Maps/riverton-dam-removal.jpeg}
+\caption{Dam removal in progress on the North Fork of the Shenandoah
+River}
 \end{figure}
 
 \newpage
@@ -131,7 +131,7 @@ Shenandoah River, which feeds into the Potomac.
 \begin{figure}
 \centering
 \includegraphics{../Figures-and-Maps/mcgaheysvilledam.png}
-\caption{map of Neuse River}
+\caption{The Shenandoah River, with one of the removed dams marked.}
 \end{figure}
 
 I am interested in both changes in physical process and changes in
@@ -154,8 +154,8 @@ because of restored ecological processes.
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \item
-  Question 1: Have discharge levels become more extreme since dam
-  removal?
+  Question 1: Have discharge levels become more extreme or changed since
+  dam removal?
 \item
   Question 2: Has there been a change in release of sediment and
   nutrients since the dam removal?
@@ -351,6 +351,11 @@ to be higher since dam removal. Verify with a t-test:
 Flow levels have not been significantly different before (\emph{M} =
 1594.2, \emph{SD} = 2687.3) versus after (\emph{M} = 1640.3, \emph{SD} =
 2009.5) the dam removal (\emph{p} = 0.140, \emph{t}(11202) = -1.48).
+Although the extreme discharge events appear to have become less extreme
+since the dam removal, there has not been a statistically significant
+change in overall discharge levels. This finding suggests that perhaps
+without dams, the river is more resilient to high precipitation and
+drought events.
 
 \newpage
 
@@ -399,6 +404,22 @@ Sediments\_mg.L1 & After & 320 & 40.74525 & 79.73761 & 0.0 & 521 & 521.0
 
 Sediment levels appear to be lower on average since dam removal.
 
+Visualize yearly minimum, mean, and maximum sediment levels:
+
+\begin{figure}
+\centering
+\includegraphics{Project_Script_files/figure-latex/Sediment_Analysis3-1.pdf}
+\caption{Yearly Minimum, Maximum, and Average Sediment Levels Over Time}
+\end{figure}
+
+Keeping in mind that these values are logged, sediment loads were
+substantially higher in 1996 than any other year measured. There may
+have been substantial development or other disruption that year. Further
+analyses should be considered cautiously because this one outlier year
+may impact results. We should not exclude it from consideration, because
+the prior ten years are not available so it could be indicative of a
+longer trend.
+
 Test whether average sediment has been significantly different before
 versus after dam removal:
 
@@ -419,7 +440,11 @@ versus after dam removal:
 Yes, sediment levels have been significantly different (\emph{t}(148.63)
 = 2.00, \emph{p} = 0.047). Specifically, they have been lower post-dam
 removal (\emph{M} = 40.64, \emph{SD} = 79.63) compared with pre-dam
-removal (\emph{M}= 83.15, \emph{SD} = 242.94).
+removal (\emph{M}= 83.15, \emph{SD} = 242.94). This result is surprising
+because we would expect a large sediment release immediately after dam
+removal, but the lack of data for the year 2004 may explain the
+discrepancy. The high sediment loads of 1996 may also have a large
+impact on this finding.
 
 \newpage
 
@@ -475,7 +500,14 @@ Check whether average nitrogen levels have changed since dam removal:
 Yes, nitrogen levels since dam removal (\emph{M} = 0.92, \emph{SD} =
 0.45) have been significantly lower (\emph{t}(550.8) = 4.56, \emph{p}
 \textless{} 0.001) compared with nitrogen levels before dam removal
-(\emph{M} = 1.09, \emph{SD} = 0.43).
+(\emph{M} = 1.09, \emph{SD} = 0.43). Nitrogen has a higher potential for
+denitrification with finer sediments, so perhaps a large influx of
+sediment immediately after dam removal changed the river floor
+substantially enough to impact nitrogen levels. On the other hand, a
+spike occurred in 2021, so nitrogen levels should certainly be followed
+over a longer time period before drawing definitive conclusions.
+Nitrogen is highly soluble, so impacts from agriculture and other
+sources are likely also playing a role.
 
 \newpage
 
@@ -533,7 +565,14 @@ removal:
 Phosphate levels have been significantly lower (\emph{t}(309.22) =
 19.10, \emph{p} \textless{} 0.001) since dam removal (\emph{M} = 0.07,
 \emph{SD} = 0.08) compared with during the dammed years (\emph{M} =
-0.40, \emph{SD} = 0.27).
+0.40, \emph{SD} = 0.27). This result is not surprising given our finding
+with sediment, because phosphate movement through alluvial systems is
+dependent upon sediment movement (Stanley \& Doyle, 2002). However,
+looking at the graphs, the change in phosphate levels over time are
+quite striking and began decreasing before dam removal. Changes in
+regulations of point sources or agricultural practices over time might
+help explain the dramatic decrease in phosphate levels, though those
+specific topics were not explored for this project.
 
 \newpage
 
@@ -579,11 +618,13 @@ significantly lower since dam removal. In both cases, the decline in
 nutrients appears to have begun before dam removal, and we did not
 assess nutrient levels upstream of the dam over time. Therefore, we
 cannot say definitively what role the dam itself played. The release and
-retention of nitrogen and phosphate levels in rivers are at least
-partially determined by sediment (Stanley \& Doyle, 2002). Thus, the
-decline in nutrients is likely impacted by the decreased amount of
-sediment release with changing hydrology as healthy river functions were
-restored.
+retention of nitrogen and phosphate levels in rivers are affected by
+sediment levels (Stanley \& Doyle, 2002). Thus, the decline in nutrients
+is likely impacted by the decreased amount of sediment release with
+changing hydrology as healthy river functions were restored. A better
+understanding of regulations and land use in the region is needed to
+understand all factors that may have influenced these decreasing
+nutrient levels.
 
 In summary, the removal of these three dams on the South Shenandoah
 appears to have decreased discharge extremes and levels of sediment and
