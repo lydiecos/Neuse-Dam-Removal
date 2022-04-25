@@ -14,10 +14,11 @@ editor_options:
   chunk_output_type: console
 ---
 
-![](https://usfwsnortheast.files.wordpress.com/2016/12/5-riverton-dam-was-removed-on-the-beautiful-north-fork-shenandoah-river-this-opened-100-miles-of-the-north-fork-shenandoah-river-to-migratory-fish-returning-to-the-potomac-river-from-t.jpg)
+![Dam removal in progress on the North Fork of the Shenandoah River](../Figures-and-Maps/riverton-dam-removal.jpeg)
 
 \newpage
 \tableofcontents 
+\newpage
 \listoftables 
 \listoffigures 
 \newpage
@@ -53,13 +54,13 @@ In this study, I seek to understand how dam removal has impacted the physical an
 
 Below: The red X marks the spot of the McGaheysville Dam, which were removed along with the Knightly Dam and Rockland Dam upstream in 2004-2005. All three dams were located along the south fork of the Shenandoah River, which feeds into the Potomac.
 
-![map of Neuse River](../Figures-and-Maps/mcgaheysvilledam.png)
+![The Shenandoah River, with one of the removed dams marked.](../Figures-and-Maps/mcgaheysvilledam.png)
 
 I am interested in both changes in physical process and changes in chemical processes, which can vary widely according to the specific river, its history, and the dam removal process (Foley et al 2017). Dams allow for moderation of flow, often eliminating extreme flooding events. Therefore, dam removal in combination with increasing extreme weather events due to climate change could lead to more extreme and more frequent high flow events. On the other hand, natural river systems and riparian areas can be more resilient to flood events than artificially constructed channels, so true restoration could help mitigate high flow events to some extent. 
 
 Changes in water quality are also an area of interest. Large amounts of sediment and minerals built up behind the dam may release quickly after removal, especially if the removal was sudden rather than gradual (Foley et al 2017). Over longer time, water quality is expected to improve because of restored ecological processes.
 
-1. Question 1: Have discharge levels become more extreme since dam removal?
+1. Question 1: Have discharge levels become more extreme or changed since dam removal?
 
 2. Question 2: Has there been a change in release of sediment and nutrients since the dam removal? 
 
@@ -101,8 +102,7 @@ ShenaFlow <- readNWISdv(siteNumbers = "01631000",
 ShenaWQ  <- readWQPqw(siteNumbers = "USGS-01631000",
                       parameterCd = c("00631", # nitrate, mg/L
                                       "00660", # phosphate, mg/L
-                                      "80154", # Suspended sediments mg/L
-                                      "00010"), # Temperature C
+                                      "80154"), # Suspended sediments mg/L
                       startDate = "",
                       endDate = "")
 
@@ -135,7 +135,7 @@ str(ShenaFlow)
 summary(ShenaFlow)
 
 # Save ShenaFlow file
-write.csv("../Data/Processed/ShenaFlow.csv")
+write.csv(ShenaFlow, "../Data/Processed/ShenaFlow.csv")
 
 # Create monthly summary dataset of discharge
 ShenaFlow_monthly <- ShenaFlow %>%
@@ -169,11 +169,10 @@ ShenaWQ_processed <- ShenaWQ %>%
          Year = year(ActivityStartDate),
          Variable = case_when(CharacteristicName == "Suspended Sediment Concentration (SSC)" ~ "Sediments_mg.L",
                               CharacteristicName == "Inorganic nitrogen (nitrate and nitrite)" ~ "Nitrogen_mg.L",
-                              CharacteristicName == "Orthophosphate" ~ "Phosphate_mg.L",
-                              CharacteristicName == "Temperature, water" ~ "Temp_C")) %>%
+                              CharacteristicName == "Orthophosphate" ~ "Phosphate_mg.L")) %>%
   select(-CharacteristicName) %>%
-  pivot_wider(names_from = "Variable", values_from = "ResultMeasureValue") %>%
-  unnest(cols = c(Sediments_mg.L, Nitrogen_mg.L, Phosphate_mg.L, Temp_C))
+  pivot_wider(names_from = Variable, values_from = ResultMeasureValue) %>%
+  unnest(cols = c(Sediments_mg.L, Nitrogen_mg.L, Phosphate_mg.L))
 
 # Rename the date column
 names(ShenaWQ_processed)[2] <- "Date"
@@ -186,7 +185,7 @@ summary(ShenaWQ_processed)
 str(ShenaWQ_processed)
 
 # Save ShenaWQ file
-write.csv("../Data/Processed/ShenaWQ.csv")
+write.csv(ShenaWQ_processed, "../Data/Processed/ShenaWQ.csv")
 
 # Create monthly summary dataset of water quality
 ShenaWQ_monthly <- ShenaWQ_processed %>%
@@ -194,9 +193,6 @@ ShenaWQ_monthly <- ShenaWQ_processed %>%
   summarise(Sediment_min = min(Sediments_mg.L),
             Sediment_max = max(Sediments_mg.L),
             Sediment_mean = mean(Sediments_mg.L),
-            Temp_min = min(Temp_C),
-            Temp_max = max(Temp_C),
-            Temp_mean = mean(Temp_C),
             Nitrogen_min = min(Nitrogen_mg.L),
             Nitrogen_max = max(Nitrogen_mg.L),
             Nitrogen_mean = mean(Nitrogen_mg.L),
@@ -219,9 +215,9 @@ flow_summary_all <- ShenaFlow %>%
   describe(., fast = T)
 
 ShenaWQ_processed %>%
-  select(Nitrogen_mg.L, Temp_C, Phosphate_mg.L, Sediments_mg.L) %>%
+  select(Nitrogen_mg.L, Phosphate_mg.L, Sediments_mg.L) %>%
   describe(., fast = T) %>%
-  rbind(flow_summary_all, .)
+  rbind(flow_summary_all, .) %>%
   kable()
 ```
 
@@ -237,7 +233,7 @@ ggplot(ShenaFlow, aes(x = Date, y = Discharge)) +
   geom_line() +
   geom_smooth(method = "lm") +
   scale_y_log10() +
-  labs(y = "Discharge (cfs)")
+  labs(y = "Discharge, logged (cfs)")
 ```
 
 ```{r exploration_plot2, echo=FALSE, warning=FALSE, message=FALSE, fig.cap = "Sediment over time"}
@@ -246,7 +242,8 @@ ggplot(ShenaFlow, aes(x = Date, y = Discharge)) +
 ggplot(ShenaWQ_processed, aes(x = Date, y = Sediments_mg.L)) +
   geom_point(aes(color = Month)) +
   geom_smooth(method = "lm") +
-  labs(y = "Suspended Sediment Concentration (mg/L)")
+  labs(y = "Suspended Sediment Concentration, \nlogged (mg/L)") +
+  scale_y_log10()
 
 ```
 
@@ -268,23 +265,13 @@ ggplot(ShenaWQ_processed, aes(x = Date, y = Phosphate_mg.L)) +
   labs(y = "Phosphate (mg/L)")
 ```
 
-```{r exploration_plot5, echo=FALSE, warning=FALSE, message=FALSE, fig.cap = "Temperature over time"}
-# View Temp over time
-ggplot(ShenaWQ_processed, aes(x = Date, y = Temp_C)) +
-  geom_point(aes(color = Month)) +
-  geom_smooth(method = "lm") +
-  labs(y = "Temperature (C)")
-```
-
-
-
 \newpage
 
 # Analysis
 
-## Question 1: Flow
+## Part 1: Flow
 
-> Question #1: Have discharge extremes increased since the removal of the dams? Has average discharge changed since dam removal?
+**Question #1: Have discharge extremes increased since the removal of the dams? Has average discharge changed since dam removal?**
 
 View minimum and maximum flow by month over time. The y-axis is logged to more easily view the distribution of values.
 
@@ -420,7 +407,7 @@ Flow_Components.after <- mutate(Flow_Components.after,
 
 We can view overall trends by running a time series that takes seasonality into account. In the resulting graph, below, we see general trend before the dam removal in red and after the dam removal in purple. 
 
-```{r flow_ts_graph, echo=FALSE, warning=FALSE, message=FALSE}
+```{r flow_ts_graph, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Flow Trends Over Time"}
 # Graph before vs after trends
 ggplot(Flow_Components) +
   geom_line(aes(y = Observed, x = Date), color = "gray", size = 0.25) +
@@ -433,7 +420,7 @@ ggplot(Flow_Components) +
 
 \newpage
 
-## Question 2
+## Part 2
 
 **Question #2: Has there been a change in release of sediment and nutrients since the dam removal?** 
  
@@ -489,7 +476,7 @@ Yes, sediment levels have been significantly different (*t*(148.63) = 2.00, *p* 
 
 ### Nitrogen
 
-Have nitrogen levels changed since dam removal?
+**Have nitrogen levels changed since dam removal?**
 
 ``` {r Nitrogen_Analysis, message=FALSE, warning=FALSE, include=FALSE}
 # Re-examine data, zoomed in
@@ -517,7 +504,7 @@ kable(flow_summary_n, caption = "Summary Statistics for Nitrogen")
 
 Visualize yearly minimum, mean, and maximum nitrogen levels:
 
-``` {r Nitrogen_Analysis3, message=FALSE, warning=FALSE, echo=FALSE}
+``` {r Nitrogen_Analysis3, message=FALSE, warning=FALSE, echo=FALSE, fig.cap="Yearly Minimum, Maximum, and Average Nitrogen Levels Over Time"}
 # Create yearly summary table to visualize differently
 ShenaWQ_yearly <- ShenaWQ_processed %>%
   group_by(Year) %>%
@@ -570,6 +557,8 @@ Yes, nitrogen levels since dam removal (*M* = 0.92, *SD* = 0.45) have been signi
 
 ### Phosphate
 
+**Have phosphate levels changed since dam removal?**
+
 ``` {r Phosphate_Analysis, include=FALSE, message=FALSE, warning=FALSE}
 # Re-examine data, zoomed in
 ggplot(ShenaWQ_processed, aes(x = Date, y = Phosphate_mg.L)) +
@@ -580,7 +569,7 @@ ggplot(ShenaWQ_processed, aes(x = Date, y = Phosphate_mg.L)) +
   labs(y = "Phosphate (mg/L)")
 ```
 
-View summary statistics comparing sediment levels before versus after dam removal:
+View summary statistics comparing phosphate levels before versus after dam removal:
 
 ```{r Phosphate.analysis2, warning=FALSE, message=FALSE, echo=FALSE}
 # Create summary table to compare before and after dam removal
@@ -595,7 +584,9 @@ colnames(flow_summary_p)[1] <- "Timeframe"
 kable(flow_summary_p, caption = "Summary Statistics for Phosphate")
 ```
 
-``` {r Phosphate_Analysis3, warning=FALSE, message=FALSE, echo=FALSE}
+Visualize yearly minimum, mean, and maximum phosphate levels:
+
+``` {r Phosphate_Analysis3, warning=FALSE, message=FALSE, echo=FALSE, fig.cap="Yearly Minimum, Maximum, and Average Phosphate Levels Over Time"}
 # Plot yearly trends
 ggplot(ShenaWQ_yearly, aes(x = Year)) +
   geom_point(aes(y = Phosphate_min), color = "darkgoldenrod2") +
@@ -631,17 +622,17 @@ Phosphate levels have been significantly lower (*t*(309.22) = 19.10, *p* < 0.001
 
 # Summary and Conclusions
 
-* Flow: fewer extremes since dam removal. Restoring natural hydrology makes rivers more resilient to extreme precipitation and drought.
+These findings suggest that the dam removals on the South Fork of the Shenandoah did impact the flow, sediments, and nutrients of the river downstream. Following these variables over a longer time window would help explain the relative role of the dam removal itself compared with changing climate factors, development, and other river impacts. 
 
-* Sediment:
+Because we did not know the exact timing of the three dam removals and did not have data during these events for all variable, it is important to differentiate between the immediate impacts of a dam removal versus the longer term recovery of the hydrology and ecosystem. In general, dam removal tends to cause a large release of sediment that has built up behind the dam over the years, which may bring high levels of nutrients as well (Stanley & Doyle, 2002).
 
-* Both Nitrogen and Phosphate levels were significantly lower after dam removal. 
+**Flow.** Average discharge levels have not changed since dam removal, but the extremes of discharge have been smaller, both less extreme high flow events and less extreme low flow events. This finding is interesting because dams allow control of water, which could hedge against both high and low flow events. On the other hand, restoring natural hydrology makes rivers more resilient to extreme precipitation and drought. The latter seems to be more important in this case, though we cannot eliminate the possibility that perhaps there have not been as extreme precipitation events nor droughts in the past 15 years compared with prior decades. Further monitoring is needed.
 
-* Not enough data; need more years to confirm these findings
+**Sediment.** Sediment levels have been significantly lower since removal. Data are not available for the year 2004, so we do not know the degree of sediment release during and immediately after dam removal. Past research has shown that the high release of sediment from a dam removal can have significant impacts as far as coastal ecosystems (Rubin et al., 2017). In this case at least, it seems that after the initial release of sediment, the restoration of healthy river functions was able to capture and hold a higher level of sediment. 
 
-* Would have been interesting to look at the effects on water quality immediately after the dam removal, if we knew the timing and had the data.
+**Nutrients.** Both nitrogen and phosphate levels have been significantly lower since dam removal. In both cases, the decline in nutrients appears to have begun before dam removal, and we did not assess nutrient levels upstream of the dam over time. Therefore, we cannot say definitively what role the dam itself played. The release and retention of nitrogen and phosphate levels in rivers are at least partially determined by sediment (Stanley & Doyle, 2002). Thus, the decline in nutrients is likely impacted by the decreased amount of sediment release with changing hydrology as healthy river functions were restored.
 
-* Need to monitor over time for impacts of climate change and other stressors like development.
+In summary, the removal of these three dams on the South Shenandoah appears to have decreased discharge extremes and levels of sediment and nutrients during the 15 years after the 2-year dam removal period. Viewing the data during the actual period of dam removal would be illuminating. Examining other gages, both upstream of the dams and further downstream, could help us understand changing processes. Furthermore, following these parameters over a longer time period will help solidify our understanding of the dam removal, especially with regards to the impacts of climate change and other stressors. Dam removal holds great promise for restoring healthy fluvial systems. Every river is unique, so research must continue to be able to predict the impacts of dam removal and the optimal ways to do so.
 
 
 \newpage
@@ -650,12 +641,16 @@ Phosphate levels have been significantly lower (*t*(309.22) = 19.10, *p* < 0.001
 
 * Foley, M. M., J. R. Bellmore, J. E. O'Connor, J. J. Duda, A. E. East, G. E. Grant, C. W. Anderson, J. A. Bountry, M. J. Collins, P. J. Connolly, L. S. Craig, J. E. Evans, S. L. Greene,F. J. Magilligan, C. S. Magirl, J. J. Major, G. R. Pess,T. J. Randle, P. B. Shafroth, C. E. Torgersen, D. Tullos, A. C. Wilcox. 2017. Dam removal: Listening in. *Water Resources Research. 53*(7):5229-5246. https://doi-org.proxy.lib.duke.edu/10.1002/2017WR020457
 
+* Musser, K. Map. *Fish Passage and Dam Removal.* http://www.virginiaplaces.org/watersheds/fishpassage.html
+
+* Rubin, S. P., Miller, I. M., Foley, M. M., Berry, H. D., Duda, J. J., Hudson, B., et al. (2017). Increased sediment load during a large-scale dam removal changes nearshore subtidal communities. *PLoS ONE 12*(12): e0187742. https://doi.org/10.1371/journal.pone.0187742
+
+* Stanley, E. H., & Doyle, M. W. (2002). A geomorphic perspective on nutrient retention following dam removal: geomorphic models provide a means of predicting ecosystem responses to dam removal. *BioScience, 52*(8), 693+. https://link.gale.com/apps/doc/A90317049/EAIM?u=duke_perkins&sid=summon&xid=26814f17
+
+* U.S. Geological Survey. 2022. The StreamStats program. https://streamstats.usgs.gov/ss/
+
+* Virginia Department of Wildlife Resources. 2022. Fish Passage Program. https://dwr.virginia.gov/fishing/fish-passage/#potomac
+
 * Weaver, A. 2010. Photograph. *U.S. Fish and Wildlife Service Northeast Region.* https://usfwsnortheast.wordpress.com/2016/12/13/virginia-rivers-opened-for-the-first-time-in-100-years/
-
-Map source: http://www.virginiaplaces.org/watersheds/fishpassage.html
-
-Sediment deposits alter downstream tidal communities https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0187742#references
-
-info: https://dwr.virginia.gov/fishing/fish-passage/#orange
 
 
